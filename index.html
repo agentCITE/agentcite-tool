@@ -4,6 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>AgentCite — GEO Score</title>
+  <link rel="icon" type="image/x-icon" href="favicon.ico">
   <style>
     @import url('https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;1,9..40,300&display=swap');
   </style>
@@ -1443,7 +1444,7 @@
       </button>
       <div class="faq-answer">
         <div class="faq-answer-inner">
-          <a href="https://www.thebrokerbase.com">Broker Base</a> is a digital marketing agency that works exclusively with real estate professionals and eCommerce brands. We built this tool because GEO is the most underutilized opportunity in real estate marketing right now — and the best way to show agents why it matters is to show them their actual score. The scan is free. If your score tells a story you want to change, we're here to help. Reach us at <a href="mailto:contact&#64;thebrokerbase.com">contact&#64;thebrokerbase&#46;com</a> or call <a href="tel:3233711357">323.371.1357</a>.
+          <a href="https://www.thebrokerbase.com">Broker Base</a> is a digital marketing agency that works exclusively with real estate professionals and eCommerce brands. We built this tool because GEO is the most underutilized opportunity in real estate marketing right now — and the best way to show agents why it matters is to show them their actual score. The scan is free. If your score tells a story you want to change, we're here to help. Reach us at <a href="/cdn-cgi/l/email-protection#6b0804051f0a081f4d485d5f501f030e091904000e19090a180e45080406">contact&#64;thebrokerbase&#46;com</a> or call <a href="tel:3233711357">323.371.1357</a>.
         </div>
       </div>
     </div>
@@ -1455,7 +1456,7 @@
     <div>contact&#64;thebrokerbase&#46;com · 323.371.1357</div>
   </footer>
 
-  <script>
+  <script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
     let agentData = {};
     let cachedResultData = null; // holds cached data for "view full report"
 
@@ -2143,7 +2144,4 @@ Respond in JSON only, no markdown, no backticks:
         verdictEl.innerHTML = `<strong>${agentFirst} leads by ${gap} points</strong> — but that lead isn't permanent. ${compFirst} could close that gap with consistent GEO content in as little as 60 days. The agents who act first own their market.`;
       } else {
         verdictEl.className = 'battle-verdict losing';
-        verdictEl.innerHTML = `<strong>${agentFirst} is ${gap} points behind ${compFirst}</strong> in AI visibility right now. Every time a buyer asks AI for a top agent in ${agentRes.city}, ${compFirst} comes up and ${agentFirst} doesn't. That gap is fixable — but only if you start now.`;
-      }
-
-      document.getElementById('compareFormSection').style.display = 'none
+        verdictEl.innerHTML = `<strong>${agentFirst} is ${gap} points behind ${compFirst}</strong> in AI visibility right now. Every time a buyer asks AI for a top agent in ${agentRes.city}, ${compFirst} comes up an
