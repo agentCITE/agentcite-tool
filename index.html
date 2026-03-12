@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>GEO Score — Broker Base</title>
+  <title>AgentCite — GEO Score</title>
   <style>
     @import url('https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;1,9..40,300&display=swap');
   </style>
@@ -55,14 +55,14 @@
 
     .logo {
       font-family: 'Syne', sans-serif;
-      font-weight: 800;
-      font-size: 1.05rem;
-      letter-spacing: 0.1em;
+      font-weight: 300;
+      font-size: 1.15rem;
+      letter-spacing: 0.08em;
       text-transform: uppercase;
       color: var(--ink);
       text-decoration: none;
     }
-    .logo span { color: var(--gold); }
+    .logo span { color: var(--gold); font-weight: 800; letter-spacing: 0.12em; }
 
     .header-tag {
       font-size: 0.68rem;
@@ -84,8 +84,11 @@
       flex-direction: column;
       align-items: center;
       justify-content: center;
-      padding: 3rem 1.5rem;
+      padding: 3rem 2rem;
       text-align: center;
+      max-width: 680px;
+      margin: 0 auto;
+      width: 100%;
     }
 
     .search-eyebrow {
@@ -208,9 +211,12 @@
       align-items: center;
       justify-content: center;
       flex-direction: column;
-      padding: 3rem 1.5rem;
+      padding: 3rem 2rem;
       text-align: center;
       gap: 2rem;
+      max-width: 680px;
+      margin: 0 auto;
+      width: 100%;
     }
 
     .scan-agent-name {
@@ -1040,6 +1046,7 @@
       .bas-num { font-size: 2.4rem; }
       .bb-row { grid-template-columns: 55px 1fr 6px 1fr 55px; }
     }
+  </style>
 </head>
 <body>
 
@@ -1091,7 +1098,15 @@
   </div>
 
   <header>
-    <a href="https://www.thebrokerbase.com" class="logo">BROKER <span>BASE</span></a>
+    <a href="https://www.thebrokerbase.com" class="logo" style="display:flex;align-items:center;gap:0.55rem;text-decoration:none;">
+      <svg width="28" height="28" viewBox="0 0 28 28" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <rect x="1" y="1" width="6" height="26" rx="1" fill="none" stroke="#c9a84c" stroke-width="2"/>
+        <rect x="21" y="1" width="6" height="26" rx="1" fill="none" stroke="#c9a84c" stroke-width="2"/>
+        <text x="14" y="19" text-anchor="middle" font-family="Syne,sans-serif" font-weight="800" font-size="13" fill="#1a1a18">A</text>
+        <circle cx="14" cy="25.5" r="1.5" fill="#b85c38"/>
+      </svg>
+      <span style="font-family:'Syne',sans-serif;font-size:1.05rem;letter-spacing:0.04em;font-weight:300;color:#1a1a18;text-transform:lowercase;">agent<strong style="font-weight:800;color:#c9a84c;text-transform:uppercase;letter-spacing:0.08em;">CITE</strong><span style="color:#b85c38;font-size:1.2em;line-height:0;vertical-align:-0.05em;">·</span></span>
+    </a>
     <div class="header-tag">Live GEO Intelligence</div>
   </header>
 
@@ -1123,7 +1138,7 @@
 
   <!-- ─── SEARCH SCREEN ─── -->
   <div id="searchScreen" style="display:flex;">
-    <div class="search-eyebrow">Powered by Broker Base</div>
+    <div class="search-eyebrow">by Broker Base</div>
     <h1 class="search-headline">Does AI know who you are?</h1>
     <p class="search-sub">Enter any agent's name and city. We'll scan ChatGPT, Perplexity, and Claude in real time and show you exactly what AI says about them.</p>
 
@@ -1428,7 +1443,7 @@
       </button>
       <div class="faq-answer">
         <div class="faq-answer-inner">
-          <a href="https://www.thebrokerbase.com">Broker Base</a> is a digital marketing agency that works exclusively with real estate professionals and eCommerce brands. We built this tool because GEO is the most underutilized opportunity in real estate marketing right now — and the best way to show agents why it matters is to show them their actual score. The scan is free. If your score tells a story you want to change, we're here to help. Reach us at <a href="mailto:contact@thebrokerbase.com">contact@thebrokerbase.com</a> or call <a href="tel:3233711357">323.371.1357</a>.
+          <a href="https://www.thebrokerbase.com">Broker Base</a> is a digital marketing agency that works exclusively with real estate professionals and eCommerce brands. We built this tool because GEO is the most underutilized opportunity in real estate marketing right now — and the best way to show agents why it matters is to show them their actual score. The scan is free. If your score tells a story you want to change, we're here to help. Reach us at <a href="mailto:contact&#64;thebrokerbase.com">contact&#64;thebrokerbase&#46;com</a> or call <a href="tel:3233711357">323.371.1357</a>.
         </div>
       </div>
     </div>
@@ -1437,10 +1452,10 @@
 
   <footer>
     <div>© 2026 <a href="https://www.thebrokerbase.com">Broker Base</a> · Digital Marketing for Real Estate Professionals</div>
-    <div><a href="/cdn-cgi/l/email-protection#03606c6d7762607743776b6661716c686671616270662d606c6e"><span class="__cf_email__" data-cfemail="bdded2d3c9dcdec9fdc9d5d8dfcfd2d6d8cfdfdcced893ded2d0">[email&#160;protected]</span></a> · 323.371.1357</div>
+    <div>contact&#64;thebrokerbase&#46;com · 323.371.1357</div>
   </footer>
 
-  <script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
+  <script>
     let agentData = {};
     let cachedResultData = null; // holds cached data for "view full report"
 
@@ -2131,12 +2146,4 @@ Respond in JSON only, no markdown, no backticks:
         verdictEl.innerHTML = `<strong>${agentFirst} is ${gap} points behind ${compFirst}</strong> in AI visibility right now. Every time a buyer asks AI for a top agent in ${agentRes.city}, ${compFirst} comes up and ${agentFirst} doesn't. That gap is fixable — but only if you start now.`;
       }
 
-      document.getElementById('compareFormSection').style.display = 'none';
-      document.getElementById('battleSection').classList.add('visible');
-      setTimeout(() => {
-        document.getElementById('battleSection').scrollIntoView({ behavior: 'smooth', block: 'start' });
-      }, 100);
-    }
-  </script>
-</body>
-</html>
+      document.getElementById('compareFormSection').style.display = 'none
