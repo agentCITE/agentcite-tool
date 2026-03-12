@@ -1,0 +1,2142 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>GEO Score — Broker Base</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;1,9..40,300&display=swap');
+  </style>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --ink: #1a1a18;
+      --paper: #f6f3ee;
+      --gold: #c9a84c;
+      --gold-light: #e8d49a;
+      --rust: #b85c38;
+      --sage: #4a5e52;
+      --mist: #e5e0d6;
+      --white: #ffffff;
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: 'DM Sans', sans-serif;
+      background: var(--paper);
+      color: var(--ink);
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+      pointer-events: none;
+      z-index: 0;
+      opacity: 0.5;
+    }
+
+    /* HEADER */
+    header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 1.4rem 3rem;
+      border-bottom: 1px solid rgba(0,0,0,0.1);
+      position: relative;
+      z-index: 10;
+      background: var(--paper);
+    }
+
+    .logo {
+      font-family: 'Syne', sans-serif;
+      font-weight: 800;
+      font-size: 1.05rem;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--ink);
+      text-decoration: none;
+    }
+    .logo span { color: var(--gold); }
+
+    .header-tag {
+      font-size: 0.68rem;
+      font-weight: 500;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--sage);
+      border: 1px solid var(--sage);
+      padding: 0.28rem 0.7rem;
+      border-radius: 2px;
+    }
+
+    /* ─── SEARCH SCREEN ─── */
+    #searchScreen {
+      position: relative;
+      z-index: 1;
+      min-height: calc(100vh - 61px);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 3rem 1.5rem;
+      text-align: center;
+    }
+
+    .search-eyebrow {
+      font-size: 0.7rem;
+      font-weight: 600;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      color: var(--gold);
+      margin-bottom: 1.2rem;
+    }
+
+    .search-headline {
+      font-family: 'Syne', sans-serif;
+      font-weight: 800;
+      font-size: clamp(2rem, 5vw, 3.4rem);
+      line-height: 1.05;
+      max-width: 640px;
+      margin-bottom: 1rem;
+    }
+
+    .search-sub {
+      font-size: 0.95rem;
+      font-weight: 300;
+      color: #666;
+      line-height: 1.7;
+      max-width: 460px;
+      margin-bottom: 3rem;
+    }
+
+    .search-form {
+      width: 100%;
+      max-width: 520px;
+      display: flex;
+      flex-direction: column;
+      gap: 0.8rem;
+    }
+
+    .input-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 0.8rem;
+    }
+
+    .input-wrap {
+      position: relative;
+    }
+
+    .input-label {
+      display: block;
+      font-size: 0.68rem;
+      font-weight: 600;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: #888;
+      margin-bottom: 0.4rem;
+      text-align: left;
+    }
+
+    .search-input {
+      width: 100%;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 0.95rem;
+      font-weight: 400;
+      color: var(--ink);
+      background: var(--white);
+      border: 1.5px solid var(--mist);
+      border-radius: 3px;
+      padding: 0.85rem 1.1rem;
+      outline: none;
+      transition: border-color 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    .search-input:focus {
+      border-color: var(--gold);
+      box-shadow: 0 0 0 3px rgba(201,168,76,0.12);
+    }
+
+    .search-input::placeholder { color: #bbb; }
+
+    .btn-scan {
+      font-family: 'Syne', sans-serif;
+      font-weight: 700;
+      font-size: 0.85rem;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      background: var(--ink);
+      color: var(--gold);
+      border: none;
+      padding: 1rem 2rem;
+      border-radius: 3px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.6rem;
+      width: 100%;
+      margin-top: 0.4rem;
+    }
+
+    .btn-scan:hover { background: #2d2d2a; transform: translateY(-1px); }
+    .btn-scan:active { transform: translateY(0); }
+
+    .btn-scan .arrow { transition: transform 0.2s ease; }
+    .btn-scan:hover .arrow { transform: translateX(3px); }
+
+    .search-disclaimer {
+      font-size: 0.72rem;
+      color: #aaa;
+      font-weight: 300;
+      margin-top: 1.5rem;
+    }
+
+    /* ─── SCANNING SCREEN ─── */
+    #scanScreen {
+      display: none;
+      position: relative;
+      z-index: 1;
+      min-height: calc(100vh - 61px);
+      align-items: center;
+      justify-content: center;
+      flex-direction: column;
+      padding: 3rem 1.5rem;
+      text-align: center;
+      gap: 2rem;
+    }
+
+    .scan-agent-name {
+      font-family: 'Syne', sans-serif;
+      font-weight: 800;
+      font-size: 1.8rem;
+    }
+
+    .scan-steps {
+      display: flex;
+      flex-direction: column;
+      gap: 0.6rem;
+      width: 100%;
+      max-width: 420px;
+    }
+
+    .scan-step {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      padding: 0.9rem 1.2rem;
+      background: white;
+      border: 1px solid var(--mist);
+      border-radius: 3px;
+      font-size: 0.85rem;
+      font-weight: 400;
+      color: #888;
+      transition: all 0.4s ease;
+      text-align: left;
+    }
+
+    .scan-step.active {
+      border-color: var(--gold);
+      color: var(--ink);
+      font-weight: 500;
+    }
+
+    .scan-step.done {
+      border-color: var(--sage);
+      color: var(--sage);
+    }
+
+    .step-icon {
+      width: 24px;
+      height: 24px;
+      border-radius: 50%;
+      border: 2px solid currentColor;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      font-size: 0.65rem;
+      font-weight: 700;
+    }
+
+    .scan-step.active .step-icon {
+      background: var(--gold);
+      border-color: var(--gold);
+      color: white;
+      animation: pulse 1s ease infinite;
+    }
+
+    .scan-step.done .step-icon {
+      background: var(--sage);
+      border-color: var(--sage);
+      color: white;
+    }
+
+    .scan-bar-wrap {
+      width: 100%;
+      max-width: 420px;
+      height: 3px;
+      background: var(--mist);
+      border-radius: 2px;
+      overflow: hidden;
+    }
+
+    .scan-bar {
+      height: 100%;
+      background: linear-gradient(90deg, var(--sage), var(--gold));
+      border-radius: 2px;
+      width: 0;
+      transition: width 0.6s ease;
+    }
+
+    /* ─── RESULTS SCREEN ─── */
+    #resultsScreen {
+      display: none;
+      position: relative;
+      z-index: 1;
+      padding: 3rem;
+      max-width: 900px;
+      margin: 0 auto;
+    }
+
+    /* Agent meta */
+    .agent-meta {
+      display: flex;
+      align-items: center;
+      gap: 1.4rem;
+      margin-bottom: 2.5rem;
+      animation: fadeUp 0.5s ease forwards;
+    }
+
+    .agent-avatar {
+      width: 68px;
+      height: 68px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, var(--gold-light), var(--gold));
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: 'Syne', sans-serif;
+      font-weight: 800;
+      font-size: 1.4rem;
+      color: white;
+      flex-shrink: 0;
+      border: 3px solid white;
+      box-shadow: 0 4px 16px rgba(0,0,0,0.1);
+    }
+
+    .agent-info h1 {
+      font-family: 'Syne', sans-serif;
+      font-weight: 700;
+      font-size: 1.7rem;
+      line-height: 1.1;
+    }
+
+    .agent-info p {
+      font-size: 0.88rem;
+      color: #777;
+      margin-top: 0.2rem;
+      font-weight: 300;
+    }
+
+    .rescan-btn {
+      margin-left: auto;
+      font-family: 'Syne', sans-serif;
+      font-weight: 600;
+      font-size: 0.75rem;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      background: transparent;
+      color: var(--ink);
+      border: 1.5px solid var(--mist);
+      padding: 0.6rem 1.2rem;
+      border-radius: 3px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      flex-shrink: 0;
+    }
+    .rescan-btn:hover { border-color: var(--ink); }
+
+    /* Score card */
+    .score-card {
+      background: var(--ink);
+      color: white;
+      border-radius: 4px;
+      padding: 2.4rem 2.8rem;
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 2rem;
+      align-items: center;
+      margin-bottom: 2.5rem;
+      position: relative;
+      overflow: hidden;
+      animation: fadeUp 0.5s ease 0.1s both;
+    }
+
+    .score-card::before {
+      content: 'GEO';
+      position: absolute;
+      right: -1rem;
+      top: 50%;
+      transform: translateY(-50%);
+      font-family: 'Syne', sans-serif;
+      font-weight: 800;
+      font-size: 8rem;
+      color: rgba(255,255,255,0.04);
+      letter-spacing: -0.05em;
+      pointer-events: none;
+    }
+
+    .score-label {
+      font-size: 0.68rem;
+      font-weight: 600;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      color: var(--gold);
+      margin-bottom: 0.5rem;
+    }
+
+    .score-headline {
+      font-family: 'Syne', sans-serif;
+      font-weight: 700;
+      font-size: 1.5rem;
+      line-height: 1.2;
+      margin-bottom: 0.7rem;
+    }
+
+    .score-subtext {
+      font-size: 0.875rem;
+      font-weight: 300;
+      color: rgba(255,255,255,0.6);
+      line-height: 1.65;
+      max-width: 420px;
+    }
+
+    .score-dial {
+      width: 130px;
+      height: 130px;
+      flex-shrink: 0;
+      position: relative;
+    }
+
+    .score-dial svg { width: 100%; height: 100%; transform: rotate(-90deg); }
+    .dial-track { fill: none; stroke: rgba(255,255,255,0.1); stroke-width: 8; }
+    .dial-fill {
+      fill: none;
+      stroke: var(--gold);
+      stroke-width: 8;
+      stroke-linecap: round;
+      stroke-dasharray: 339.29;
+      stroke-dashoffset: 339.29;
+      transition: stroke-dashoffset 1.6s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .score-number {
+      position: absolute; inset: 0;
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+    }
+    .score-num { font-family: 'Syne', sans-serif; font-weight: 800; font-size: 2.1rem; line-height: 1; color: white; }
+    .score-denom { font-size: 0.68rem; color: rgba(255,255,255,0.35); font-weight: 300; }
+
+    /* Section title */
+    .section-title {
+      font-family: 'Syne', sans-serif;
+      font-weight: 700;
+      font-size: 0.78rem;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      margin-bottom: 1rem;
+      display: flex;
+      align-items: center;
+      gap: 0.8rem;
+      color: var(--ink);
+    }
+    .section-title::after { content: ''; flex: 1; height: 1px; background: var(--mist); }
+
+    /* Platform cards */
+    .platforms-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1rem;
+      margin-bottom: 2.5rem;
+      animation: fadeUp 0.5s ease 0.2s both;
+    }
+
+    .platform-card {
+      background: white;
+      border: 1px solid rgba(0,0,0,0.08);
+      border-radius: 4px;
+      padding: 1.3rem 1.4rem;
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+    .platform-card:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(0,0,0,0.07); }
+
+    .platform-name {
+      font-family: 'Syne', sans-serif;
+      font-weight: 700;
+      font-size: 0.82rem;
+      letter-spacing: 0.04em;
+      margin-bottom: 0.7rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .platform-icon {
+      width: 18px; height: 18px; border-radius: 3px;
+      display: inline-flex; align-items: center; justify-content: center;
+      font-size: 0.6rem; font-weight: 800; color: white; flex-shrink: 0;
+    }
+    .icon-gpt { background: #10a37f; }
+    .icon-perp { background: #1a9ba0; }
+    .icon-claude { background: #c96442; }
+
+    .platform-answer {
+      font-size: 0.8rem;
+      line-height: 1.55;
+      color: #555;
+      font-weight: 300;
+      margin-bottom: 0.9rem;
+      min-height: 60px;
+    }
+
+    .platform-bar-wrap { height: 3px; background: var(--mist); border-radius: 2px; overflow: hidden; }
+    .platform-bar { height: 100%; border-radius: 2px; width: 0; transition: width 1.2s cubic-bezier(0.16,1,0.3,1); }
+    .bar-low { background: var(--rust); }
+    .bar-mid { background: var(--gold); }
+    .bar-high { background: var(--sage); }
+
+    .platform-verdict {
+      font-size: 0.68rem;
+      font-weight: 600;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      margin-top: 0.45rem;
+    }
+    .verdict-low { color: var(--rust); }
+    .verdict-mid { color: var(--gold); }
+    .verdict-high { color: var(--sage); }
+
+    /* Tabs */
+    .ai-section { margin-bottom: 2.5rem; animation: fadeUp 0.5s ease 0.3s both; }
+    .tabs { display: flex; border-bottom: 2px solid var(--mist); margin-bottom: 0; }
+    .tab {
+      font-family: 'DM Sans', sans-serif;
+      font-size: 0.78rem; font-weight: 500;
+      letter-spacing: 0.04em;
+      padding: 0.65rem 1.1rem;
+      border: none; background: none; cursor: pointer;
+      color: #999; border-bottom: 2px solid transparent;
+      margin-bottom: -2px; transition: all 0.2s;
+    }
+    .tab.active { color: var(--ink); border-bottom-color: var(--gold); font-weight: 600; }
+
+    .tab-panel { display: none; background: white; border: 1px solid rgba(0,0,0,0.07); border-top: none; padding: 1.6rem 1.8rem; }
+    .tab-panel.active { display: block; }
+
+    .query-label {
+      font-size: 0.7rem; font-weight: 500;
+      letter-spacing: 0.06em; text-transform: uppercase;
+      color: #aaa; margin-bottom: 0.7rem;
+    }
+    .query-label em { color: var(--ink); text-transform: none; letter-spacing: 0; font-style: italic; font-weight: 400; }
+
+    .ai-answer-text {
+      font-size: 0.88rem; line-height: 1.75; color: #333; font-weight: 300;
+      border-left: 3px solid var(--mist); padding-left: 1.1rem;
+    }
+    .ai-answer-text.not-found { color: var(--rust); border-left-color: var(--rust); font-style: italic; }
+    .ai-answer-text.partial { border-left-color: var(--gold); }
+    .ai-answer-text.found { border-left-color: var(--sage); }
+
+    /* Gaps */
+    .gaps-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1rem;
+      margin-bottom: 2.5rem;
+      animation: fadeUp 0.5s ease 0.4s both;
+    }
+
+    .gap-card {
+      border: 1px solid rgba(0,0,0,0.08);
+      border-radius: 4px;
+      padding: 1.3rem 1.5rem;
+      background: white;
+    }
+
+    .gap-tag {
+      display: inline-block;
+      font-size: 0.62rem; font-weight: 700;
+      letter-spacing: 0.1em; text-transform: uppercase;
+      padding: 0.22rem 0.55rem; border-radius: 2px;
+      margin-bottom: 0.6rem;
+    }
+    .tag-critical { background: var(--rust); color: white; }
+    .tag-win { background: var(--gold); color: white; }
+    .tag-strength { background: var(--sage); color: white; }
+
+    .gap-card h3 { font-family: 'Syne', sans-serif; font-weight: 700; font-size: 0.9rem; margin-bottom: 0.4rem; }
+    .gap-card p { font-size: 0.8rem; font-weight: 300; line-height: 1.6; color: #666; }
+
+    /* CTA */
+    .cta-section {
+      background: var(--ink);
+      color: white;
+      border-radius: 4px;
+      padding: 2.8rem 3rem;
+      text-align: center;
+      margin-bottom: 3rem;
+      position: relative;
+      overflow: hidden;
+      animation: fadeUp 0.5s ease 0.5s both;
+    }
+    .cta-section::before {
+      content: '';
+      position: absolute; top: -60px; right: -60px;
+      width: 220px; height: 220px; border-radius: 50%;
+      background: radial-gradient(circle, rgba(201,168,76,0.15) 0%, transparent 70%);
+    }
+
+    .cta-eyebrow { font-size: 0.68rem; font-weight: 600; letter-spacing: 0.15em; text-transform: uppercase; color: var(--gold); margin-bottom: 0.7rem; }
+    .cta-headline { font-family: 'Syne', sans-serif; font-weight: 800; font-size: 1.9rem; line-height: 1.1; margin-bottom: 0.9rem; }
+    .cta-body { font-size: 0.875rem; font-weight: 300; color: rgba(255,255,255,0.6); line-height: 1.7; max-width: 460px; margin: 0 auto 1.8rem; }
+
+    .cta-btns { display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap; }
+
+    .btn-primary {
+      font-family: 'Syne', sans-serif; font-weight: 700; font-size: 0.82rem;
+      letter-spacing: 0.08em; text-transform: uppercase;
+      background: var(--gold); color: var(--ink);
+      border: none; padding: 0.85rem 1.8rem;
+      border-radius: 3px; cursor: pointer;
+      transition: all 0.2s; text-decoration: none; display: inline-block;
+    }
+    .btn-primary:hover { background: var(--gold-light); transform: translateY(-1px); }
+
+    .btn-ghost {
+      font-family: 'Syne', sans-serif; font-weight: 600; font-size: 0.82rem;
+      letter-spacing: 0.08em; text-transform: uppercase;
+      background: transparent; color: rgba(255,255,255,0.65);
+      border: 1px solid rgba(255,255,255,0.2);
+      padding: 0.85rem 1.8rem; border-radius: 3px; cursor: pointer;
+      transition: all 0.2s; text-decoration: none; display: inline-block;
+    }
+    .btn-ghost:hover { border-color: rgba(255,255,255,0.5); color: white; }
+
+    /* Loading skeleton */
+    .skeleton {
+      background: linear-gradient(90deg, var(--mist) 25%, #ede9e0 50%, var(--mist) 75%);
+      background-size: 200% 100%;
+      animation: shimmer 1.4s infinite;
+      border-radius: 3px;
+      height: 0.9em;
+      display: inline-block;
+    }
+    @keyframes shimmer { to { background-position: -200% 0; } }
+
+    /* Animations */
+    @keyframes fadeUp { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: translateY(0); } }
+    @keyframes pulse { 0%,100% { box-shadow: 0 0 0 0 rgba(201,168,76,0.4); } 50% { box-shadow: 0 0 0 5px rgba(201,168,76,0); } }
+
+    footer {
+      border-top: 1px solid rgba(0,0,0,0.09);
+      padding: 1.8rem 3rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 0.72rem;
+      color: #aaa;
+      position: relative; z-index: 1;
+    }
+    footer a { color: var(--gold); text-decoration: none; }
+
+    /* ─── EMAIL GATE MODAL ─── */
+    .modal-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(26,26,24,0.7);
+      backdrop-filter: blur(4px);
+      z-index: 200;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 1.5rem;
+    }
+    .modal-overlay.open { display: flex; }
+
+    .modal-box {
+      background: var(--paper);
+      border-radius: 6px;
+      width: 100%;
+      max-width: 460px;
+      overflow: hidden;
+      box-shadow: 0 24px 64px rgba(0,0,0,0.3);
+      animation: modalIn 0.35s cubic-bezier(0.16,1,0.3,1) forwards;
+    }
+
+    @keyframes modalIn {
+      from { opacity: 0; transform: translateY(20px) scale(0.97); }
+      to { opacity: 1; transform: translateY(0) scale(1); }
+    }
+
+    .modal-header {
+      background: var(--ink);
+      padding: 1.6rem 2rem;
+    }
+
+    .modal-eyebrow {
+      font-size: 0.65rem;
+      font-weight: 600;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      color: var(--gold);
+      margin-bottom: 0.5rem;
+    }
+
+    .modal-title {
+      font-family: 'Syne', sans-serif;
+      font-weight: 800;
+      font-size: 1.3rem;
+      color: white;
+      line-height: 1.2;
+    }
+
+    .modal-sub {
+      font-size: 0.8rem;
+      font-weight: 300;
+      color: rgba(255,255,255,0.5);
+      margin-top: 0.4rem;
+      line-height: 1.5;
+    }
+
+    .modal-body {
+      padding: 1.6rem 2rem 2rem;
+    }
+
+    .modal-agent-preview {
+      background: white;
+      border: 1px solid var(--mist);
+      border-radius: 3px;
+      padding: 0.8rem 1rem;
+      margin-bottom: 1.4rem;
+      display: flex;
+      align-items: center;
+      gap: 0.8rem;
+    }
+
+    .map-avatar-sm {
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, var(--gold-light), var(--gold));
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: 'Syne', sans-serif;
+      font-weight: 800;
+      font-size: 0.85rem;
+      color: white;
+      flex-shrink: 0;
+    }
+
+    .map-preview-text { font-size: 0.8rem; }
+    .map-preview-text strong { font-family: 'Syne', sans-serif; font-weight: 700; font-size: 0.85rem; display: block; }
+    .map-preview-text span { color: #888; font-weight: 300; }
+
+    .modal-field { margin-bottom: 1rem; }
+    .modal-field:last-of-type { margin-bottom: 1.4rem; }
+
+    .modal-row { display: grid; grid-template-columns: 1fr 1fr; gap: 0.8rem; margin-bottom: 1rem; }
+
+    .modal-label {
+      display: block;
+      font-size: 0.65rem;
+      font-weight: 600;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: #888;
+      margin-bottom: 0.35rem;
+    }
+
+    .modal-input {
+      width: 100%;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 0.9rem;
+      color: var(--ink);
+      background: white;
+      border: 1.5px solid var(--mist);
+      border-radius: 3px;
+      padding: 0.75rem 0.9rem;
+      outline: none;
+      transition: border-color 0.2s, box-shadow 0.2s;
+    }
+    .modal-input:focus {
+      border-color: var(--gold);
+      box-shadow: 0 0 0 3px rgba(201,168,76,0.1);
+    }
+    .modal-input.error { border-color: var(--rust); }
+
+    .modal-disclaimer {
+      font-size: 0.7rem;
+      font-weight: 300;
+      color: #aaa;
+      line-height: 1.5;
+      margin-bottom: 1.2rem;
+    }
+
+    .btn-gate {
+      width: 100%;
+      font-family: 'Syne', sans-serif;
+      font-weight: 700;
+      font-size: 0.85rem;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      background: var(--ink);
+      color: var(--gold);
+      border: none;
+      padding: 1rem;
+      border-radius: 3px;
+      cursor: pointer;
+      transition: all 0.2s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+    }
+    .btn-gate:hover { background: #2d2d2a; }
+    .btn-gate:disabled { opacity: 0.5; cursor: not-allowed; }
+
+    .modal-error {
+      font-size: 0.78rem;
+      color: var(--rust);
+      margin-top: 0.6rem;
+      display: none;
+    }
+    .modal-error.visible { display: block; }
+
+    @media (max-width: 480px) {
+      .modal-row { grid-template-columns: 1fr; }
+      .modal-header { padding: 1.4rem 1.5rem; }
+      .modal-body { padding: 1.4rem 1.5rem 1.6rem; }
+    }
+    .faq-section {
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 3rem 3rem 1rem;
+      position: relative;
+      z-index: 1;
+    }
+
+    .faq-item {
+      border-bottom: 1px solid var(--mist);
+      overflow: hidden;
+    }
+
+    .faq-item:first-of-type { border-top: 1px solid var(--mist); }
+
+    .faq-question {
+      width: 100%;
+      background: none;
+      border: none;
+      padding: 1.2rem 0;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      cursor: pointer;
+      text-align: left;
+      gap: 1rem;
+      transition: color 0.2s ease;
+    }
+
+    .faq-question:hover .fq-text { color: var(--gold); }
+
+    .fq-text {
+      font-family: 'Syne', sans-serif;
+      font-weight: 600;
+      font-size: 0.92rem;
+      color: var(--ink);
+      line-height: 1.4;
+      transition: color 0.2s ease;
+    }
+
+    .fq-icon {
+      width: 22px;
+      height: 22px;
+      border-radius: 50%;
+      border: 1.5px solid var(--mist);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      font-size: 0.8rem;
+      color: #aaa;
+      transition: all 0.25s ease;
+      font-weight: 300;
+    }
+
+    .faq-item.open .fq-icon {
+      background: var(--gold);
+      border-color: var(--gold);
+      color: white;
+      transform: rotate(45deg);
+    }
+
+    .faq-answer {
+      max-height: 0;
+      overflow: hidden;
+      transition: max-height 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .faq-item.open .faq-answer { max-height: 400px; }
+
+    .faq-answer-inner {
+      padding: 0 0 1.4rem 0;
+      font-size: 0.875rem;
+      font-weight: 300;
+      line-height: 1.75;
+      color: #555;
+    }
+
+    .faq-answer-inner a { color: var(--gold); text-decoration: none; }
+    .faq-answer-inner strong { font-weight: 500; color: var(--ink); }
+
+    @media (max-width: 680px) {
+      .faq-section { padding: 2rem 1.4rem 1rem; }
+    }
+
+    /* ─── COMPARISON ─── */
+    .compare-trigger {
+      border: 2px dashed var(--mist);
+      border-radius: 4px;
+      padding: 2rem;
+      text-align: center;
+      margin-bottom: 2.5rem;
+      cursor: pointer;
+      transition: all 0.25s ease;
+      animation: fadeUp 0.5s ease 0.55s both;
+    }
+    .compare-trigger:hover { border-color: var(--gold); background: rgba(201,168,76,0.04); }
+    .compare-trigger-icon { font-size: 1.6rem; margin-bottom: 0.5rem; }
+    .compare-trigger h3 { font-family: 'Syne', sans-serif; font-weight: 700; font-size: 1rem; margin-bottom: 0.3rem; }
+    .compare-trigger p { font-size: 0.82rem; font-weight: 300; color: #888; }
+
+    .compare-form-section {
+      display: none;
+      background: white;
+      border: 1px solid rgba(0,0,0,0.08);
+      border-radius: 4px;
+      padding: 1.8rem 2rem;
+      margin-bottom: 2.5rem;
+      animation: fadeUp 0.4s ease forwards;
+    }
+    .compare-form-section.open { display: block; }
+    .compare-form-title { font-family: 'Syne', sans-serif; font-weight: 700; font-size: 0.9rem; margin-bottom: 1.2rem; }
+    .compare-inputs { display: grid; grid-template-columns: 1fr 1fr auto; gap: 0.8rem; align-items: flex-end; }
+    .btn-compare {
+      font-family: 'Syne', sans-serif; font-weight: 700; font-size: 0.78rem;
+      letter-spacing: 0.07em; text-transform: uppercase;
+      background: var(--sage); color: white;
+      border: none; padding: 0.85rem 1.4rem;
+      border-radius: 3px; cursor: pointer;
+      transition: all 0.2s; white-space: nowrap;
+    }
+    .btn-compare:hover { background: #3d4f45; transform: translateY(-1px); }
+    .btn-compare:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+
+    /* Battle card */
+    .battle-section {
+      display: none;
+      margin-bottom: 2.5rem;
+      animation: fadeUp 0.5s ease forwards;
+    }
+    .battle-section.visible { display: block; }
+
+    .battle-header {
+      background: var(--ink);
+      color: white;
+      border-radius: 4px 4px 0 0;
+      padding: 1.4rem 2rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1rem;
+    }
+    .battle-label { font-size: 0.68rem; font-weight: 600; letter-spacing: 0.14em; text-transform: uppercase; color: var(--gold); margin-bottom: 0.3rem; }
+    .battle-name { font-family: 'Syne', sans-serif; font-weight: 800; font-size: 1.1rem; }
+    .battle-city { font-size: 0.78rem; color: rgba(255,255,255,0.45); font-weight: 300; margin-top: 0.1rem; }
+    .battle-vs {
+      font-family: 'Syne', sans-serif; font-weight: 800; font-size: 1.4rem;
+      color: var(--gold); flex-shrink: 0; opacity: 0.7;
+    }
+
+    .battle-scores {
+      background: white;
+      border: 1px solid rgba(0,0,0,0.08);
+      border-top: none;
+      padding: 2rem;
+    }
+
+    .battle-score-row {
+      display: grid;
+      grid-template-columns: 1fr auto 1fr;
+      gap: 1.5rem;
+      align-items: center;
+      margin-bottom: 2rem;
+    }
+
+    .battle-agent-score { text-align: center; }
+    .bas-label { font-size: 0.68rem; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; color: #aaa; margin-bottom: 0.5rem; }
+    .bas-name { font-family: 'Syne', sans-serif; font-weight: 700; font-size: 0.9rem; margin-bottom: 0.8rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .bas-num {
+      font-family: 'Syne', sans-serif; font-weight: 800; font-size: 3.2rem;
+      line-height: 1;
+    }
+    .bas-num.winner { color: var(--sage); }
+    .bas-num.loser { color: var(--rust); }
+    .bas-denom { font-size: 0.78rem; color: #bbb; font-weight: 300; }
+
+    .battle-divider {
+      display: flex; flex-direction: column; align-items: center; gap: 0.3rem;
+    }
+    .bd-gap {
+      font-family: 'Syne', sans-serif; font-weight: 800; font-size: 1.6rem;
+      color: var(--ink);
+    }
+    .bd-label { font-size: 0.62rem; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; color: #bbb; }
+
+    .battle-bars { display: flex; flex-direction: column; gap: 0.9rem; }
+    .bb-row { display: grid; grid-template-columns: 80px 1fr 8px 1fr 80px; align-items: center; gap: 0.6rem; }
+    .bb-platform { font-size: 0.7rem; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase; color: #aaa; text-align: right; }
+    .bb-bar-left { height: 8px; border-radius: 2px 0 0 2px; background: var(--rust); transition: width 1s ease; margin-left: auto; }
+    .bb-bar-right { height: 8px; border-radius: 0 2px 2px 0; background: var(--sage); transition: width 1s ease; }
+    .bb-center { width: 8px; height: 8px; background: var(--mist); flex-shrink: 0; border-radius: 1px; }
+    .bb-score-left { font-family: 'Syne', sans-serif; font-weight: 700; font-size: 0.75rem; color: var(--rust); text-align: right; }
+    .bb-score-right { font-family: 'Syne', sans-serif; font-weight: 700; font-size: 0.75rem; color: var(--sage); }
+
+    .battle-verdict {
+      margin-top: 1.6rem;
+      padding: 1.2rem 1.4rem;
+      border-radius: 3px;
+      font-size: 0.85rem;
+      line-height: 1.65;
+      font-weight: 300;
+    }
+    .battle-verdict.losing { background: #fff5f2; border-left: 3px solid var(--rust); }
+    .battle-verdict.winning { background: #f2f6f4; border-left: 3px solid var(--sage); }
+    .battle-verdict strong { font-weight: 600; }
+
+    @media (max-width: 680px) {
+      .compare-inputs { grid-template-columns: 1fr; }
+      .battle-score-row { grid-template-columns: 1fr auto 1fr; }
+      .bas-num { font-size: 2.4rem; }
+      .bb-row { grid-template-columns: 55px 1fr 6px 1fr 55px; }
+    }
+</head>
+<body>
+
+  <!-- ─── EMAIL GATE MODAL ─── -->
+  <div class="modal-overlay" id="emailGateModal">
+    <div class="modal-box">
+      <div class="modal-header">
+        <div class="modal-eyebrow">One quick step</div>
+        <div class="modal-title">Where should we send your results?</div>
+        <div class="modal-sub">Your GEO score is ready. Enter your info to unlock the full report.</div>
+      </div>
+      <div class="modal-body">
+
+        <div class="modal-agent-preview">
+          <div class="map-avatar-sm" id="gateAvatar">?</div>
+          <div class="map-preview-text">
+            <strong id="gateAgentPreview">Agent Name</strong>
+            <span id="gateCityPreview">City · Market</span>
+          </div>
+        </div>
+
+        <div class="modal-row">
+          <div>
+            <label class="modal-label" for="gateFirst">First Name</label>
+            <input class="modal-input" id="gateFirst" type="text" placeholder="Sarah" autocomplete="given-name">
+          </div>
+          <div>
+            <label class="modal-label" for="gateLast">Last Name</label>
+            <input class="modal-input" id="gateLast" type="text" placeholder="Johnson" autocomplete="family-name">
+          </div>
+        </div>
+
+        <div class="modal-field">
+          <label class="modal-label" for="gateEmail">Your Email Address</label>
+          <input class="modal-input" id="gateEmail" type="email" placeholder="you@email.com" autocomplete="email">
+        </div>
+
+        <p class="modal-disclaimer">
+          We'll send your report here and may follow up with tips to improve your score.
+          No spam. Unsubscribe anytime. By continuing you agree to be contacted by Broker Base.
+        </p>
+
+        <button class="btn-gate" id="gateSubmitBtn" onclick="submitGate()">
+          View My GEO Score <span>→</span>
+        </button>
+        <div class="modal-error" id="gateError">Please enter a valid email address to continue.</div>
+      </div>
+    </div>
+  </div>
+
+  <header>
+    <a href="https://www.thebrokerbase.com" class="logo">BROKER <span>BASE</span></a>
+    <div class="header-tag">Live GEO Intelligence</div>
+  </header>
+
+  <!-- ─── RATE LIMIT BLOCKED SCREEN ─── -->
+  <div id="blockedScreen" style="display:none;position:relative;z-index:1;min-height:calc(100vh - 61px);display:none;flex-direction:column;align-items:center;justify-content:center;padding:3rem 1.5rem;text-align:center;gap:1.2rem;">
+    <div style="font-size:2.8rem;margin-bottom:0.5rem;">🚫</div>
+    <div style="font-family:'Syne',sans-serif;font-weight:800;font-size:1.6rem;max-width:480px;" id="blockedHeadline">Daily limit reached.</div>
+    <div style="font-size:0.9rem;font-weight:300;color:#777;line-height:1.7;max-width:400px;" id="blockedSub">You've used all 3 searches for today. Come back tomorrow to run more scans.</div>
+    <div style="margin-top:0.5rem;font-size:0.78rem;font-weight:500;letter-spacing:0.06em;text-transform:uppercase;color:var(--gold);background:var(--ink);padding:0.7rem 1.6rem;border-radius:3px;" id="blockedTimer">Resets in: —</div>
+    <button onclick="resetToSearch()" style="margin-top:0.8rem;font-family:'Syne',sans-serif;font-weight:600;font-size:0.75rem;letter-spacing:0.08em;text-transform:uppercase;background:transparent;color:#aaa;border:1.5px solid var(--mist);padding:0.55rem 1.2rem;border-radius:3px;cursor:pointer;">← Back</button>
+  </div>
+
+  <!-- ─── CACHED RESULT SCREEN ─── -->
+  <div id="cachedScreen" style="display:none;position:relative;z-index:1;min-height:calc(100vh - 61px);flex-direction:column;align-items:center;justify-content:center;padding:3rem 1.5rem;text-align:center;gap:1.4rem;">
+    <div style="font-size:2.6rem;margin-bottom:0.3rem;">📋</div>
+    <div style="font-family:'Syne',sans-serif;font-weight:800;font-size:1.6rem;" id="cachedAgentName">Agent Name</div>
+    <div style="font-size:0.9rem;font-weight:300;color:#777;line-height:1.7;max-width:420px;" id="cachedMsg">You ran this scan recently. GEO changes take time — here's the last report from <strong id="cachedDate">—</strong>.</div>
+    <div style="background:var(--ink);color:white;border-radius:4px;padding:1.4rem 2.4rem;display:inline-flex;flex-direction:column;align-items:center;gap:0.3rem;">
+      <div style="font-size:0.68rem;font-weight:600;letter-spacing:0.14em;text-transform:uppercase;color:var(--gold);">Last GEO Score</div>
+      <div style="font-family:'Syne',sans-serif;font-weight:800;font-size:3rem;line-height:1;color:white;" id="cachedScore">—</div>
+      <div style="font-size:0.72rem;color:rgba(255,255,255,0.4);">/100</div>
+    </div>
+    <div style="font-size:0.78rem;font-weight:500;letter-spacing:0.06em;text-transform:uppercase;color:#aaa;" id="cachedCooldown">Next scan available: —</div>
+    <div style="display:flex;gap:0.8rem;flex-wrap:wrap;justify-content:center;margin-top:0.4rem;">
+      <button onclick="showCachedFullReport()" style="font-family:'Syne',sans-serif;font-weight:700;font-size:0.78rem;letter-spacing:0.08em;text-transform:uppercase;background:var(--gold);color:var(--ink);border:none;padding:0.75rem 1.5rem;border-radius:3px;cursor:pointer;">View Full Report →</button>
+      <button onclick="resetToSearch()" style="font-family:'Syne',sans-serif;font-weight:600;font-size:0.78rem;letter-spacing:0.08em;text-transform:uppercase;background:transparent;color:#888;border:1.5px solid var(--mist);padding:0.75rem 1.5rem;border-radius:3px;cursor:pointer;">Search Someone Else</button>
+    </div>
+  </div>
+
+  <!-- ─── SEARCH SCREEN ─── -->
+  <div id="searchScreen" style="display:flex;">
+    <div class="search-eyebrow">Powered by Broker Base</div>
+    <h1 class="search-headline">Does AI know who you are?</h1>
+    <p class="search-sub">Enter any agent's name and city. We'll scan ChatGPT, Perplexity, and Claude in real time and show you exactly what AI says about them.</p>
+
+    <div class="search-form">
+      <div class="input-row">
+        <div class="input-wrap">
+          <label class="input-label" for="agentName">Agent Name</label>
+          <input class="search-input" id="agentName" type="text" placeholder="Sarah Johnson" autocomplete="off">
+        </div>
+        <div class="input-wrap">
+          <label class="input-label" for="agentCity">City & State</label>
+          <input class="search-input" id="agentCity" type="text" placeholder="Austin, TX" autocomplete="off">
+        </div>
+      </div>
+      <div class="input-wrap">
+        <label class="input-label" for="agentBrokerage">Brokerage <span style="font-weight:300;text-transform:none;letter-spacing:0">(optional)</span></label>
+        <input class="search-input" id="agentBrokerage" type="text" placeholder="Keller Williams, RE/MAX..." autocomplete="off">
+      </div>
+      <button class="btn-scan" onclick="startScan()">
+        Run GEO Scan <span class="arrow">→</span>
+      </button>
+    </div>
+    <p class="search-disclaimer">Live results via AI · Takes about 15 seconds</p>
+    <p id="searchCounterBadge" style="font-size:0.7rem;font-weight:500;letter-spacing:0.06em;margin-top:0.4rem;color:#aaa;"></p>
+  </div>
+
+  <!-- ─── SCANNING SCREEN ─── -->
+  <div id="scanScreen">
+    <div class="scan-agent-name" id="scanAgentName">Scanning...</div>
+
+    <div class="scan-steps">
+      <div class="scan-step" id="step1">
+        <div class="step-icon">1</div>
+        <span>Querying ChatGPT for agent visibility</span>
+      </div>
+      <div class="scan-step" id="step2">
+        <div class="step-icon">2</div>
+        <span>Querying Perplexity for citations</span>
+      </div>
+      <div class="scan-step" id="step3">
+        <div class="step-icon">3</div>
+        <span>Querying Claude for market presence</span>
+      </div>
+      <div class="scan-step" id="step4">
+        <div class="step-icon">4</div>
+        <span>Calculating GEO score & gaps</span>
+      </div>
+    </div>
+
+    <div class="scan-bar-wrap">
+      <div class="scan-bar" id="scanBar"></div>
+    </div>
+  </div>
+
+  <!-- ─── RESULTS SCREEN ─── -->
+  <div id="resultsScreen">
+
+    <div class="agent-meta">
+      <div class="agent-avatar" id="resAvatar">?</div>
+      <div class="agent-info">
+        <h1 id="resName">Agent Name</h1>
+        <p id="resLocation">City · Brokerage</p>
+        <p style="font-size:0.72rem;color:#bbb;margin-top:0.2rem" id="resDate">GEO Report · —</p>
+      </div>
+      <button class="rescan-btn" onclick="resetToSearch()">← New Search</button>
+    </div>
+
+    <!-- SCORE CARD -->
+    <div class="score-card">
+      <div>
+        <div class="score-label">Generative Engine Visibility Score</div>
+        <div class="score-headline" id="resScoreHeadline">Calculating...</div>
+        <div class="score-subtext" id="resScoreSub">Analyzing AI platform results...</div>
+      </div>
+      <div class="score-dial">
+        <svg viewBox="0 0 120 120">
+          <circle class="dial-track" cx="60" cy="60" r="54"/>
+          <circle class="dial-fill" id="dialFill" cx="60" cy="60" r="54"/>
+        </svg>
+        <div class="score-number">
+          <span class="score-num" id="scoreNum">0</span>
+          <span class="score-denom">/100</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- PLATFORM BREAKDOWN -->
+    <div class="section-title">Platform Visibility</div>
+    <div class="platforms-grid">
+      <div class="platform-card">
+        <div class="platform-name"><span class="platform-icon icon-gpt">G</span>ChatGPT</div>
+        <div class="platform-answer" id="gptAnswer">Scanning...</div>
+        <div class="platform-bar-wrap"><div class="platform-bar bar-low" id="gptBar"></div></div>
+        <div class="platform-verdict verdict-low" id="gptVerdict">—</div>
+      </div>
+      <div class="platform-card">
+        <div class="platform-name"><span class="platform-icon icon-perp">P</span>Perplexity</div>
+        <div class="platform-answer" id="perpAnswer">Scanning...</div>
+        <div class="platform-bar-wrap"><div class="platform-bar bar-mid" id="perpBar"></div></div>
+        <div class="platform-verdict verdict-mid" id="perpVerdict">—</div>
+      </div>
+      <div class="platform-card">
+        <div class="platform-name"><span class="platform-icon icon-claude">C</span>Claude</div>
+        <div class="platform-answer" id="claudeAnswer">Scanning...</div>
+        <div class="platform-bar-wrap"><div class="platform-bar bar-low" id="claudeBar"></div></div>
+        <div class="platform-verdict verdict-low" id="claudeVerdict">—</div>
+      </div>
+    </div>
+
+    <!-- WHAT AI SAYS TABS -->
+    <div class="section-title">What AI Says When Asked About Them</div>
+    <div class="ai-section">
+      <div class="tabs">
+        <button class="tab active" onclick="switchTab('gpt',this)">ChatGPT</button>
+        <button class="tab" onclick="switchTab('perp',this)">Perplexity</button>
+        <button class="tab" onclick="switchTab('claude',this)">Claude</button>
+      </div>
+      <div class="tab-panel active" id="tab-gpt">
+        <div class="query-label">Query: <em id="gptQuery">—</em></div>
+        <div class="ai-answer-text not-found" id="gptFull">Loading...</div>
+      </div>
+      <div class="tab-panel" id="tab-perp">
+        <div class="query-label">Query: <em id="perpQuery">—</em></div>
+        <div class="ai-answer-text not-found" id="perpFull">Loading...</div>
+      </div>
+      <div class="tab-panel" id="tab-claude">
+        <div class="query-label">Query: <em id="claudeQuery">—</em></div>
+        <div class="ai-answer-text not-found" id="claudeFull">Loading...</div>
+      </div>
+    </div>
+
+    <!-- GAPS -->
+    <div class="section-title">What's Holding Their Score Back</div>
+    <div class="gaps-grid" id="gapsGrid">
+      <!-- Populated dynamically -->
+    </div>
+
+    <!-- COMPARE VS COMPETITOR -->
+    <div class="compare-trigger" id="compareTrigger" onclick="openCompareForm()">
+      <div class="compare-trigger-icon">⚡</div>
+      <h3>How do they stack up against the competition?</h3>
+      <p>Enter a top agent in their market and see the score gap side by side.</p>
+    </div>
+
+    <div class="compare-form-section" id="compareFormSection">
+      <div class="compare-form-title">Who are they competing against?</div>
+      <div class="compare-inputs">
+        <div class="input-wrap">
+          <label class="input-label" for="compName">Competitor Name</label>
+          <input class="search-input" id="compName" type="text" placeholder="Top agent in market..." autocomplete="off">
+        </div>
+        <div class="input-wrap">
+          <label class="input-label" for="compCity">City & State</label>
+          <input class="search-input" id="compCity" type="text" placeholder="Same city..." autocomplete="off">
+        </div>
+        <button class="btn-compare" id="runCompareBtn" onclick="runComparison()">Compare →</button>
+      </div>
+      <p style="font-size:0.72rem;color:#bbb;margin-top:0.8rem;font-weight:300;">Uses 1 of your daily searches · Competitor result cached for 7 days</p>
+    </div>
+
+    <!-- BATTLE RESULT -->
+    <div class="battle-section" id="battleSection">
+      <div class="section-title">Head-to-Head GEO Comparison</div>
+
+      <div class="battle-header">
+        <div>
+          <div class="battle-label">Agent</div>
+          <div class="battle-name" id="battleAgentName">—</div>
+          <div class="battle-city" id="battleAgentCity">—</div>
+        </div>
+        <div class="battle-vs">VS</div>
+        <div style="text-align:right">
+          <div class="battle-label">Competitor</div>
+          <div class="battle-name" id="battleCompName">—</div>
+          <div class="battle-city" id="battleCompCity">—</div>
+        </div>
+      </div>
+
+      <div class="battle-scores">
+        <div class="battle-score-row">
+          <div class="battle-agent-score">
+            <div class="bas-label">Their Score</div>
+            <div class="bas-name" id="bAgentName">—</div>
+            <div class="bas-num loser" id="bAgentScore">—</div>
+            <div class="bas-denom">/100</div>
+          </div>
+          <div class="battle-divider">
+            <div class="bd-gap" id="bdGap">—</div>
+            <div class="bd-label">point gap</div>
+          </div>
+          <div class="battle-agent-score">
+            <div class="bas-label">Competitor</div>
+            <div class="bas-name" id="bCompName">—</div>
+            <div class="bas-num winner" id="bCompScore">—</div>
+            <div class="bas-denom">/100</div>
+          </div>
+        </div>
+
+        <div class="battle-bars" id="battleBars">
+          <!-- Populated dynamically -->
+        </div>
+
+        <div class="battle-verdict" id="battleVerdict">
+          <!-- Populated dynamically -->
+        </div>
+      </div>
+    </div>
+
+    <!-- CTA -->
+    <div class="cta-section">
+      <div class="cta-eyebrow">Ready to Fix This?</div>
+      <div class="cta-headline" id="ctaHeadline">Let's get AI talking about you.</div>
+      <div class="cta-body">Broker Base builds your GEO foundation — the content, the schema, the citations — so the next time a buyer asks AI who to call, your name comes up first.</div>
+      <div class="cta-btns">
+        <a href="https://www.thebrokerbase.com/contact" class="btn-primary">Get Your GEO Foundation →</a>
+        <a href="https://www.thebrokerbase.com/real-estate-marketing" class="btn-ghost">See How It Works</a>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- ─── FAQ ─── -->
+  <div class="faq-section">
+    <div class="section-title" style="max-width:900px;margin:0 auto 1.4rem;">Frequently Asked Questions</div>
+
+    <div class="faq-item">
+      <button class="faq-question" onclick="toggleFaq(this)">
+        <span class="fq-text">What is a GEO score and how is it calculated?</span>
+        <span class="fq-icon">+</span>
+      </button>
+      <div class="faq-answer">
+        <div class="faq-answer-inner">
+          A GEO (Generative Engine Optimization) score measures how visible you are to AI platforms when someone asks about real estate agents in your market. Our tool queries Claude AI to assess your digital footprint across ChatGPT, Perplexity, and Claude — evaluating how much citable, AI-readable content exists about you online. Scores are weighted across all three platforms and range from 0 to 100. Most agents score below 30 on their first scan. That's not a reflection of how good you are at your job — it's a reflection of how little AI-readable content exists about you online.
+        </div>
+      </div>
+    </div>
+
+    <div class="faq-item">
+      <button class="faq-question" onclick="toggleFaq(this)">
+        <span class="fq-text">Is this tool actually scanning ChatGPT and Perplexity in real time?</span>
+        <span class="fq-icon">+</span>
+      </button>
+      <div class="faq-answer">
+        <div class="faq-answer-inner">
+          The tool is powered by <strong>Claude AI</strong> (by Anthropic), which assesses your visibility across platforms based on your actual digital footprint. The ChatGPT and Perplexity results are informed simulations — Claude evaluates how those platforms would likely respond given what's publicly available about you online. The Claude result is a direct knowledge check: what Claude itself actually knows about you from its training data. For agents scoring under 40, the story is the same across all three platforms either way. And the Claude check is the most honest signal of true AI visibility you can get today.
+        </div>
+      </div>
+    </div>
+
+    <div class="faq-item">
+      <button class="faq-question" onclick="toggleFaq(this)">
+        <span class="fq-text">Why can I only run 3 searches per day?</span>
+        <span class="fq-icon">+</span>
+      </button>
+      <div class="faq-answer">
+        <div class="faq-answer-inner">
+          Each scan runs live AI queries in real time, which has a cost. The daily limit keeps the tool free for everyone. Three searches per day is more than enough to scan yourself, a colleague, and a competitor in a single session. Your daily count resets at midnight.
+        </div>
+      </div>
+    </div>
+
+    <div class="faq-item">
+      <button class="faq-question" onclick="toggleFaq(this)">
+        <span class="fq-text">Why does the same name have a 7-day cooldown?</span>
+        <span class="fq-icon">+</span>
+      </button>
+      <div class="faq-answer">
+        <div class="faq-answer-inner">
+          GEO visibility doesn't change overnight. It takes weeks of consistent content, schema updates, and citation building before AI platforms start recognizing and citing an agent differently. Running the same scan daily would just return the same result and waste your searches. The 7-day window is the realistic minimum before meaningful change could appear. When a name is on cooldown, you can still view the full cached report from the last scan — useful for sharing with a client or referencing in a meeting.
+        </div>
+      </div>
+    </div>
+
+    <div class="faq-item">
+      <button class="faq-question" onclick="toggleFaq(this)">
+        <span class="fq-text">My score is low. What actually fixes it?</span>
+        <span class="fq-icon">+</span>
+      </button>
+      <div class="faq-answer">
+        <div class="faq-answer-inner">
+          Three things move the needle: <strong>citable content</strong> (blog posts, neighborhood guides, and market commentary that AI can read and attribute to you by name), <strong>structured data</strong> (schema markup on your website that tells AI exactly who you are, where you work, and what you specialize in), and <strong>citation signals</strong> (your name appearing consistently across review platforms, local directories, and industry sources). Broker Base's GEO Foundation package handles all three. Most clients see measurable score improvement within 30 to 60 days of their foundation going live. <a href="https://www.thebrokerbase.com/contact">Get in touch to learn more →</a>
+        </div>
+      </div>
+    </div>
+
+    <div class="faq-item">
+      <button class="faq-question" onclick="toggleFaq(this)">
+        <span class="fq-text">Can you add schema markup to my brokerage-hosted website?</span>
+        <span class="fq-icon">+</span>
+      </button>
+      <div class="faq-answer">
+        <div class="faq-answer-inner">
+          It depends on the platform. If your website is owned or hosted by your brokerage — such as KW, Compass, eXp, or Century 21 — we may have limited or no access to the backend required to install full schema markup. In that case, we provide a complete technical specification document that your brokerage's tech team can implement directly. Alternatively, building a standalone personal website gives you full control and is the long-term best practice for agents serious about their digital presence. A personal site is outside the scope of the GEO Foundation package and is quoted separately. <a href="https://www.thebrokerbase.com/contact">Talk to us about your setup →</a>
+        </div>
+      </div>
+    </div>
+
+    <div class="faq-item">
+      <button class="faq-question" onclick="toggleFaq(this)">
+        <span class="fq-text">Who is Broker Base and why are you offering this free tool?</span>
+        <span class="fq-icon">+</span>
+      </button>
+      <div class="faq-answer">
+        <div class="faq-answer-inner">
+          <a href="https://www.thebrokerbase.com">Broker Base</a> is a digital marketing agency that works exclusively with real estate professionals and eCommerce brands. We built this tool because GEO is the most underutilized opportunity in real estate marketing right now — and the best way to show agents why it matters is to show them their actual score. The scan is free. If your score tells a story you want to change, we're here to help. Reach us at <a href="mailto:contact@thebrokerbase.com">contact@thebrokerbase.com</a> or call <a href="tel:3233711357">323.371.1357</a>.
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <footer>
+    <div>© 2026 <a href="https://www.thebrokerbase.com">Broker Base</a> · Digital Marketing for Real Estate Professionals</div>
+    <div><a href="/cdn-cgi/l/email-protection#03606c6d7762607743776b6661716c686671616270662d606c6e"><span class="__cf_email__" data-cfemail="bdded2d3c9dcdec9fdc9d5d8dfcfd2d6d8cfdfdcced893ded2d0">[email&#160;protected]</span></a> · 323.371.1357</div>
+  </footer>
+
+  <script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
+    let agentData = {};
+    let cachedResultData = null; // holds cached data for "view full report"
+
+    // ─────────────────────────────────────────────
+    // RATE LIMITING — localStorage based
+    // Rules:
+    //   • 3 searches per user per day (resets at midnight)
+    //   • Same name+city combo: 7-day cooldown
+    //   • Cached result shown when cooldown active
+    // ─────────────────────────────────────────────
+
+    const DAILY_LIMIT = 3;
+    const NAME_COOLDOWN_DAYS = 7;
+    const STORAGE_KEY_DAILY = 'bb_geo_daily';
+    const STORAGE_KEY_NAMES = 'bb_geo_names';
+
+    function getTodayKey() {
+      const d = new Date();
+      return `${d.getFullYear()}-${d.getMonth()+1}-${d.getDate()}`;
+    }
+
+    function getDailyUsage() {
+      try {
+        const raw = localStorage.getItem(STORAGE_KEY_DAILY);
+        if (!raw) return { date: getTodayKey(), count: 0 };
+        const parsed = JSON.parse(raw);
+        if (parsed.date !== getTodayKey()) return { date: getTodayKey(), count: 0 };
+        return parsed;
+      } catch { return { date: getTodayKey(), count: 0 }; }
+    }
+
+    function incrementDailyUsage() {
+      const usage = getDailyUsage();
+      usage.count += 1;
+      localStorage.setItem(STORAGE_KEY_DAILY, JSON.stringify(usage));
+    }
+
+    function getRemainingSearches() {
+      return Math.max(0, DAILY_LIMIT - getDailyUsage().count);
+    }
+
+    function getNameKey(name, city) {
+      return (name.trim().toLowerCase().replace(/\s+/g, '_') + '__' + city.trim().toLowerCase().replace(/\s+/g, '_'));
+    }
+
+    function getNameRecord(name, city) {
+      try {
+        const raw = localStorage.getItem(STORAGE_KEY_NAMES);
+        const all = raw ? JSON.parse(raw) : {};
+        return all[getNameKey(name, city)] || null;
+      } catch { return null; }
+    }
+
+    function saveNameRecord(name, city, resultData) {
+      try {
+        const raw = localStorage.getItem(STORAGE_KEY_NAMES);
+        const all = raw ? JSON.parse(raw) : {};
+        all[getNameKey(name, city)] = {
+          name, city,
+          timestamp: Date.now(),
+          result: resultData
+        };
+        localStorage.setItem(STORAGE_KEY_NAMES, JSON.stringify(all));
+      } catch(e) { console.warn('Cache save failed', e); }
+    }
+
+    function isNameOnCooldown(name, city) {
+      const record = getNameRecord(name, city);
+      if (!record) return false;
+      const cooldownMs = NAME_COOLDOWN_DAYS * 24 * 60 * 60 * 1000;
+      return (Date.now() - record.timestamp) < cooldownMs;
+    }
+
+    function cooldownRemainingText(name, city) {
+      const record = getNameRecord(name, city);
+      if (!record) return '';
+      const cooldownMs = NAME_COOLDOWN_DAYS * 24 * 60 * 60 * 1000;
+      const remaining = cooldownMs - (Date.now() - record.timestamp);
+      if (remaining <= 0) return 'Available now';
+      const days = Math.floor(remaining / (1000*60*60*24));
+      const hours = Math.floor((remaining % (1000*60*60*24)) / (1000*60*60));
+      if (days > 0) return `Available in ${days}d ${hours}h`;
+      return `Available in ${hours}h`;
+    }
+
+    function midnightCountdown() {
+      const now = new Date();
+      const midnight = new Date(now);
+      midnight.setHours(24, 0, 0, 0);
+      const diff = midnight - now;
+      const h = Math.floor(diff / (1000*60*60));
+      const m = Math.floor((diff % (1000*60*60)) / (1000*60));
+      return `${h}h ${m}m`;
+    }
+
+    function updateSearchCounterBadge() {
+      const remaining = getRemainingSearches();
+      const el = document.getElementById('searchCounterBadge');
+      if (el) {
+        el.textContent = `${remaining} of ${DAILY_LIMIT} searches remaining today`;
+        el.style.color = remaining === 0 ? 'var(--rust)' : remaining === 1 ? 'var(--gold)' : '#aaa';
+      }
+    }
+
+    // ─── STEP HELPERS ───
+    function setStep(n) {
+      for (let i = 1; i <= 4; i++) {
+        const el = document.getElementById('step' + i);
+        el.classList.remove('active', 'done');
+        if (i < n) el.classList.add('done');
+        else if (i === n) el.classList.add('active');
+      }
+      document.getElementById('scanBar').style.width = ((n - 1) / 4 * 100) + '%';
+    }
+
+    function completeSteps() {
+      for (let i = 1; i <= 4; i++) {
+        const el = document.getElementById('step' + i);
+        el.classList.remove('active');
+        el.classList.add('done');
+      }
+      document.getElementById('scanBar').style.width = '100%';
+    }
+
+    // ─── SCREEN TRANSITIONS ───
+    function showScreen(id) {
+      ['searchScreen', 'scanScreen', 'resultsScreen', 'blockedScreen', 'cachedScreen'].forEach(s => {
+        const el = document.getElementById(s);
+        if (el) el.style.display = 'none';
+      });
+      const target = document.getElementById(id);
+      if (!target) return;
+      if (id === 'searchScreen' || id === 'scanScreen' || id === 'blockedScreen' || id === 'cachedScreen') {
+        target.style.display = 'flex';
+      } else {
+        target.style.display = 'block';
+      }
+      if (id === 'searchScreen') updateSearchCounterBadge();
+    }
+
+    function resetToSearch() {
+      // Remove cached banner if present
+      const banner = document.getElementById('cachedBanner');
+      if (banner) banner.remove();
+      showScreen('searchScreen');
+      document.getElementById('agentName').value = '';
+      document.getElementById('agentCity').value = '';
+      document.getElementById('agentBrokerage').value = '';
+    }
+
+    // ─── FAQ TOGGLE ───
+    function toggleFaq(btn) {
+      const item = btn.closest('.faq-item');
+      const isOpen = item.classList.contains('open');
+      // Close all
+      document.querySelectorAll('.faq-item.open').forEach(el => el.classList.remove('open'));
+      // Open clicked if it was closed
+      if (!isOpen) item.classList.add('open');
+    }
+
+    // Init on load
+    window.addEventListener('DOMContentLoaded', () => {
+      showScreen('searchScreen');
+      updateSearchCounterBadge();
+    });
+
+    function switchTab(id, btn) {
+      document.querySelectorAll('.tab').forEach(b => b.classList.remove('active'));
+      document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+      btn.classList.add('active');
+      document.getElementById('tab-' + id).classList.add('active');
+    }
+
+    // ─── EMAIL GATE ───
+    let pendingScanData = null; // holds form data while modal is open
+
+    function submitGate() {
+      const email = document.getElementById('gateEmail').value.trim();
+      const firstName = document.getElementById('gateFirst').value.trim();
+      const lastName = document.getElementById('gateLast').value.trim();
+      const errorEl = document.getElementById('gateError');
+
+      // Validate email
+      const emailValid = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+      if (!emailValid) {
+        document.getElementById('gateEmail').classList.add('error');
+        errorEl.classList.add('visible');
+        return;
+      }
+
+      document.getElementById('gateEmail').classList.remove('error');
+      errorEl.classList.remove('visible');
+
+      const btn = document.getElementById('gateSubmitBtn');
+      btn.disabled = true;
+      btn.textContent = 'Unlocking your report...';
+
+      // Fire lead notification (non-blocking)
+      const { name, city, brokerage } = pendingScanData;
+      fetch(`${PROXY_URL}/api/lead`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ firstName, lastName, email, agentName: name, agentCity: city, agentBrokerage: brokerage })
+      }).catch(() => {}); // Silent fail — never block the user
+
+      // Store email so we don't re-gate this session
+      try { sessionStorage.setItem('bb_gate_passed', '1'); } catch(e) {}
+
+      // Close modal and proceed with scan
+      document.getElementById('emailGateModal').classList.remove('open');
+      proceedWithScan(pendingScanData);
+      pendingScanData = null;
+    }
+
+    function openGateModal(scanData) {
+      pendingScanData = scanData;
+      const { name, city } = scanData;
+      const initials = name.split(' ').map(w => w[0]).join('').toUpperCase().slice(0,2);
+      document.getElementById('gateAvatar').textContent = initials;
+      document.getElementById('gateAgentPreview').textContent = name;
+      document.getElementById('gateCityPreview').textContent = city;
+      // Reset modal state
+      document.getElementById('gateFirst').value = '';
+      document.getElementById('gateLast').value = '';
+      document.getElementById('gateEmail').value = '';
+      document.getElementById('gateEmail').classList.remove('error');
+      document.getElementById('gateError').classList.remove('visible');
+      const btn = document.getElementById('gateSubmitBtn');
+      btn.disabled = false;
+      btn.innerHTML = 'View My GEO Score <span>→</span>';
+      document.getElementById('emailGateModal').classList.add('open');
+      setTimeout(() => document.getElementById('gateFirst').focus(), 100);
+    }
+
+    // Allow Enter key to submit modal
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' && document.getElementById('emailGateModal').classList.contains('open')) {
+        submitGate();
+      }
+    });
+
+    // ─── CLAUDE API CALL (via secure proxy) ───
+    // IMPORTANT: Replace the PROXY_URL below with your Render.com URL after deployment
+    // Example: 'https://brokerbase-geo-proxy.onrender.com'
+    const PROXY_URL = 'https://brokerbase-geo-proxy.onrender.com';
+
+    async function callClaude(prompt) {
+      const response = await fetch(`${PROXY_URL}/api/geo`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ prompt })
+      });
+
+      if (!response.ok) {
+        const err = await response.json().catch(() => ({}));
+        throw new Error(err.error || `Proxy error ${response.status}`);
+      }
+
+      const data = await response.json();
+      return data.text || '';
+    }
+
+    // ─── SHOW CACHED FULL REPORT ───
+    function showCachedFullReport() {
+      if (!cachedResultData) return;
+      const { gptData, perpData, claudeData, analysis, name, city, brokerage } = cachedResultData;
+      populateResults({ gptData, perpData, claudeData, analysis, name, city, brokerage });
+      showScreen('resultsScreen');
+      window.scrollTo(0, 0);
+      // Add a "cached" banner to results
+      const existing = document.getElementById('cachedBanner');
+      if (!existing) {
+        const banner = document.createElement('div');
+        banner.id = 'cachedBanner';
+        banner.style.cssText = 'background:var(--gold);color:var(--ink);text-align:center;padding:0.6rem;font-family:Syne,sans-serif;font-weight:700;font-size:0.72rem;letter-spacing:0.1em;text-transform:uppercase;';
+        banner.textContent = '📋 Cached Report — ' + cooldownRemainingText(name, city) + ' for fresh scan';
+        document.querySelector('header').after(banner);
+      }
+    }
+
+    // ─── MAIN SCAN ───
+    async function startScan() {
+      const name = document.getElementById('agentName').value.trim();
+      const city = document.getElementById('agentCity').value.trim();
+      const brokerage = document.getElementById('agentBrokerage').value.trim();
+
+      if (!name || !city) {
+        document.getElementById('agentName').style.borderColor = name ? '' : '#b85c38';
+        document.getElementById('agentCity').style.borderColor = city ? '' : '#b85c38';
+        return;
+      }
+
+      // ─── CHECK: Name cooldown — show cache before gate ───
+      if (isNameOnCooldown(name, city)) {
+        const record = getNameRecord(name, city);
+        cachedResultData = record.result;
+        const scannedDate = new Date(record.timestamp).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+        document.getElementById('cachedAgentName').textContent = name + ' · ' + city;
+        document.getElementById('cachedDate').textContent = scannedDate;
+        document.getElementById('cachedScore').textContent = Math.round(record.result.analysis.overall_score);
+        document.getElementById('cachedCooldown').textContent = cooldownRemainingText(name, city);
+        showScreen('cachedScreen');
+        return;
+      }
+
+      // ─── CHECK: Daily limit ───
+      if (getRemainingSearches() <= 0) {
+        document.getElementById('blockedHeadline').textContent = "Daily limit reached.";
+        document.getElementById('blockedSub').textContent = `You've used all ${DAILY_LIMIT} searches for today. Come back tomorrow to run more scans.`;
+        document.getElementById('blockedTimer').textContent = `Resets in: ${midnightCountdown()}`;
+        showScreen('blockedScreen');
+        setInterval(() => {
+          const el = document.getElementById('blockedTimer');
+          if (el) el.textContent = `Resets in: ${midnightCountdown()}`;
+        }, 60000);
+        return;
+      }
+
+      // ─── EMAIL GATE — show modal unless already passed this session ───
+      let gatePassed = false;
+      try { gatePassed = sessionStorage.getItem('bb_gate_passed') === '1'; } catch(e) {}
+
+      if (!gatePassed) {
+        openGateModal({ name, city, brokerage });
+        return;
+      }
+
+      proceedWithScan({ name, city, brokerage });
+    }
+
+    async function proceedWithScan({ name, city, brokerage }) {
+      agentData = { name, city, brokerage };
+
+      // Setup scan screen
+      document.getElementById('scanAgentName').textContent = name + ' · ' + city;
+      showScreen('scanScreen');
+      setStep(1);
+
+      const brokerageStr = brokerage ? ` at ${brokerage}` : '';
+
+      try {
+        // ─── QUERY 1: ChatGPT simulation via Claude ───
+        setStep(1);
+        const gptPrompt = `You are simulating how ChatGPT would respond to a real estate query. 
+        
+Query: "Who is the best realtor for buyers in ${city}?"
+
+Based on publicly available information as of early 2026, would ChatGPT likely mention ${name}${brokerageStr} by name in its response? 
+
+Respond in JSON only, no markdown, no backticks:
+{
+  "mentioned": true or false,
+  "summary": "2-3 sentence description of what ChatGPT would say about this agent specifically, or explain why they wouldn't appear",
+  "visibility_score": number between 0-100,
+  "verdict": "Not Visible" or "Partial" or "Cited"
+}`;
+
+        const gptRaw = await callClaude(gptPrompt);
+        const gptData = JSON.parse(gptRaw.replace(/```json|```/g, '').trim());
+
+        setStep(2);
+
+        // ─── QUERY 2: Perplexity simulation ───
+        const perpPrompt = `You are simulating how Perplexity AI would respond to a real estate query.
+
+Query: "Find me a top buyer's agent in ${city} with good reviews"
+
+Based on what Perplexity would likely surface from the web (Zillow, Realtor.com, Google reviews, local press, agent websites), would ${name}${brokerageStr} appear in Perplexity's cited results?
+
+Respond in JSON only, no markdown, no backticks:
+{
+  "mentioned": true or false,
+  "summary": "2-3 sentence description of what Perplexity would surface about this agent, or why they wouldn't appear",
+  "visibility_score": number between 0-100,
+  "verdict": "Not Visible" or "Partial" or "Cited"
+}`;
+
+        const perpRaw = await callClaude(perpPrompt);
+        const perpData = JSON.parse(perpRaw.replace(/```json|```/g, '').trim());
+
+        setStep(3);
+
+        // ─── QUERY 3: Claude's own knowledge ───
+        const claudePrompt = `I am going to ask you directly: Do you have any knowledge of a real estate agent named ${name}${brokerageStr} who works in ${city}?
+
+Based only on what you actually know from your training data — their online presence, published content, reviews, local press, neighborhood guides, market reports, or any other publicly available information — assess their GEO visibility.
+
+Respond in JSON only, no markdown, no backticks:
+{
+  "mentioned": true or false,
+  "summary": "2-3 sentence honest assessment of what you know about this agent and their digital footprint",
+  "visibility_score": number between 0-100,
+  "verdict": "Not Visible" or "Partial" or "Cited"
+}`;
+
+        const claudeRaw = await callClaude(claudePrompt);
+        const claudeData = JSON.parse(claudeRaw.replace(/```json|```/g, '').trim());
+
+        setStep(4);
+
+        // ─── QUERY 4: Full analysis + gaps ───
+        const analysisPrompt = `You are a GEO (Generative Engine Optimization) analyst at a digital marketing agency called Broker Base. 
+
+Agent: ${name}${brokerageStr}, ${city}
+
+Platform results:
+- ChatGPT visibility score: ${gptData.visibility_score}/100 — ${gptData.summary}
+- Perplexity visibility score: ${perpData.visibility_score}/100 — ${perpData.summary}  
+- Claude visibility score: ${claudeData.visibility_score}/100 — ${claudeData.summary}
+
+Generate a GEO analysis report. Respond in JSON only, no markdown, no backticks:
+{
+  "overall_score": weighted average score 0-100,
+  "headline": "short punchy 6-10 word headline about their GEO situation (e.g. 'AI has no idea you exist yet.')",
+  "summary": "2-sentence plain-english summary of their GEO situation for the score card",
+  "gaps": [
+    {
+      "type": "critical" or "win" or "strength",
+      "title": "short gap/opportunity title",
+      "description": "2 sentence explanation specific to this agent and city"
+    }
+  ],
+  "cta_headline": "personalized 6-8 word CTA headline using agent's first name"
+}
+
+Include exactly 4 gaps — 2 critical, 1 quick win, 1 either strength or opportunity.`;
+
+        const analysisRaw = await callClaude(analysisPrompt);
+        const analysis = JSON.parse(analysisRaw.replace(/```json|```/g, '').trim());
+
+        completeSteps();
+
+        // ─── SAVE TO CACHE + INCREMENT COUNTER ───
+        const resultData = { gptData, perpData, claudeData, analysis, name, city, brokerage };
+        saveNameRecord(name, city, resultData);
+        incrementDailyUsage();
+
+        // Small pause for effect
+        await new Promise(r => setTimeout(r, 600));
+
+        // ─── POPULATE RESULTS ───
+        populateResults({ gptData, perpData, claudeData, analysis, name, city, brokerage });
+        showScreen('resultsScreen');
+        window.scrollTo(0, 0);
+
+      } catch (err) {
+        console.error('Scan error:', err);
+        alert('Something went wrong during the scan. Please try again.');
+        showScreen('searchScreen');
+      }
+    }
+
+    // ─── POPULATE RESULTS ───
+    function populateResults({ gptData, perpData, claudeData, analysis, name, city, brokerage }) {
+      const initials = name.split(' ').map(w => w[0]).join('').toUpperCase().slice(0, 2);
+      const brokerageStr = brokerage ? ` · ${brokerage}` : '';
+      const now = new Date().toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
+
+      // Agent meta
+      document.getElementById('resAvatar').textContent = initials;
+      document.getElementById('resName').textContent = name;
+      document.getElementById('resLocation').textContent = city + brokerageStr;
+      document.getElementById('resDate').textContent = `GEO Report · ${now}`;
+
+      // Score card
+      const score = Math.round(analysis.overall_score);
+      document.getElementById('resScoreHeadline').textContent = analysis.headline;
+      document.getElementById('resScoreSub').textContent = analysis.summary;
+
+      // Animate score dial
+      const circumference = 339.29;
+      const offset = circumference - (score / 100) * circumference;
+      setTimeout(() => {
+        document.getElementById('dialFill').style.strokeDashoffset = offset;
+        let current = 0;
+        const target = score;
+        const inc = target / 60;
+        const counter = setInterval(() => {
+          current = Math.min(current + inc, target);
+          document.getElementById('scoreNum').textContent = Math.round(current);
+          if (current >= target) clearInterval(counter);
+        }, 22);
+      }, 200);
+
+      // Platform summaries
+      document.getElementById('gptAnswer').textContent = gptData.summary;
+      document.getElementById('perpAnswer').textContent = perpData.summary;
+      document.getElementById('claudeAnswer').textContent = claudeData.summary;
+
+      // Platform bars
+      function setBar(barId, verdictId, score, verdict) {
+        const bar = document.getElementById(barId);
+        const vEl = document.getElementById(verdictId);
+        bar.className = 'platform-bar ' + (score < 30 ? 'bar-low' : score < 60 ? 'bar-mid' : 'bar-high');
+        vEl.className = 'platform-verdict ' + (score < 30 ? 'verdict-low' : score < 60 ? 'verdict-mid' : 'verdict-high');
+        vEl.textContent = verdict;
+        setTimeout(() => { bar.style.width = score + '%'; }, 300);
+      }
+
+      setBar('gptBar', 'gptVerdict', gptData.visibility_score, gptData.verdict);
+      setBar('perpBar', 'perpVerdict', perpData.visibility_score, perpData.verdict);
+      setBar('claudeBar', 'claudeVerdict', claudeData.visibility_score, claudeData.verdict);
+
+      // Tab queries
+      document.getElementById('gptQuery').textContent = `"Who is the best realtor for buyers in ${city}?"`;
+      document.getElementById('perpQuery').textContent = `"Find me a top buyer's agent in ${city} with good reviews"`;
+      document.getElementById('claudeQuery').textContent = `"Do you know ${name}, realtor in ${city}?"`;
+
+      // Tab full answers
+      function setAnswer(elId, text, verdict) {
+        const el = document.getElementById(elId);
+        el.textContent = text;
+        el.className = 'ai-answer-text ' + (verdict === 'Cited' ? 'found' : verdict === 'Partial' ? 'partial' : 'not-found');
+      }
+      setAnswer('gptFull', gptData.summary, gptData.verdict);
+      setAnswer('perpFull', perpData.summary, perpData.verdict);
+      setAnswer('claudeFull', claudeData.summary, claudeData.verdict);
+
+      // Gaps
+      const gapsEl = document.getElementById('gapsGrid');
+      gapsEl.innerHTML = analysis.gaps.map(g => `
+        <div class="gap-card">
+          <span class="gap-tag tag-${g.type}">${g.type === 'critical' ? 'Critical Gap' : g.type === 'win' ? 'Quick Win' : 'Strength'}</span>
+          <h3>${g.title}</h3>
+          <p>${g.description}</p>
+                </div>
+      `).join('');
+
+      // CTA headline
+      const firstName = name.split(' ')[0];
+      document.getElementById('ctaHeadline').textContent = analysis.cta_headline || `Let's get AI talking about ${firstName}.`;
+
+      // Store primary result for comparison
+      primaryAgentResult = { gptData, perpData, claudeData, analysis, name, city, brokerage };
+
+      // Reset comparison UI
+      document.getElementById('compareTrigger').style.display = '';
+      document.getElementById('compareFormSection').classList.remove('open');
+      document.getElementById('compareFormSection').style.display = '';
+      document.getElementById('battleSection').classList.remove('visible');
+      const btn = document.getElementById('runCompareBtn');
+      if (btn) { btn.disabled = false; btn.textContent = 'Compare →'; }
+    }
+
+    // ─── COMPARISON ───
+    let primaryAgentResult = null;
+
+    function openCompareForm() {
+      document.getElementById('compareTrigger').style.display = 'none';
+      const form = document.getElementById('compareFormSection');
+      form.classList.add('open');
+      if (agentData.city) document.getElementById('compCity').value = agentData.city;
+      document.getElementById('compName').focus();
+    }
+
+    async function runComparison() {
+      const compName = document.getElementById('compName').value.trim();
+      const compCity = document.getElementById('compCity').value.trim();
+
+      if (!compName || !compCity) {
+        document.getElementById('compName').style.borderColor = compName ? '' : '#b85c38';
+        document.getElementById('compCity').style.borderColor = compCity ? '' : '#b85c38';
+        return;
+      }
+
+      if (getRemainingSearches() <= 0) {
+        document.getElementById('compareFormSection').innerHTML = `
+          <div style="text-align:center;padding:1rem;">
+            <div style="font-family:'Syne',sans-serif;font-weight:700;font-size:0.95rem;margin-bottom:0.4rem;">Daily limit reached.</div>
+            <div style="font-size:0.82rem;color:#888;font-weight:300;">You've used all ${DAILY_LIMIT} searches today. Come back tomorrow.</div>
+            <div style="font-size:0.75rem;color:var(--gold);margin-top:0.6rem;font-weight:500;">Resets in ${midnightCountdown()}</div>
+          </div>`;
+        return;
+      }
+
+      const btn = document.getElementById('runCompareBtn');
+      btn.disabled = true;
+      btn.textContent = 'Scanning...';
+
+      try {
+        let compResult = null;
+
+        if (isNameOnCooldown(compName, compCity)) {
+          const record = getNameRecord(compName, compCity);
+          compResult = record.result;
+        } else {
+          const [gptRaw, perpRaw, claudeRaw] = await Promise.all([
+            callClaude(`You are simulating how ChatGPT would respond to a real estate query.
+Query: "Who is the best realtor for buyers in ${compCity}?"
+Would ChatGPT mention ${compName} by name?
+Respond in JSON only, no markdown, no backticks:
+{"mentioned":false,"summary":"2-3 sentence description","visibility_score":40,"verdict":"Not Visible"}`),
+            callClaude(`You are simulating how Perplexity AI would respond to a real estate query.
+Query: "Find me a top buyer's agent in ${compCity} with good reviews"
+Would ${compName} appear in Perplexity's cited results?
+Respond in JSON only, no markdown, no backticks:
+{"mentioned":false,"summary":"2-3 sentence description","visibility_score":40,"verdict":"Not Visible"}`),
+            callClaude(`Do you have any knowledge of a real estate agent named ${compName} who works in ${compCity}?
+Respond in JSON only, no markdown, no backticks:
+{"mentioned":false,"summary":"2-3 sentence honest assessment","visibility_score":40,"verdict":"Not Visible"}`)
+          ]);
+
+          const gptData = JSON.parse(gptRaw.replace(/```json|```/g, '').trim());
+          const perpData = JSON.parse(perpRaw.replace(/```json|```/g, '').trim());
+          const claudeData = JSON.parse(claudeRaw.replace(/```json|```/g, '').trim());
+
+          const analysisRaw = await callClaude(`You are a GEO analyst at Broker Base.
+Agent: ${compName}, ${compCity}
+ChatGPT: ${gptData.visibility_score}/100
+Perplexity: ${perpData.visibility_score}/100
+Claude: ${claudeData.visibility_score}/100
+Respond in JSON only, no markdown, no backticks:
+{"overall_score":45,"headline":"short headline","summary":"2 sentence summary","gaps":[],"cta_headline":"headline"}`);
+
+          const analysis = JSON.parse(analysisRaw.replace(/```json|```/g, '').trim());
+          compResult = { gptData, perpData, claudeData, analysis, name: compName, city: compCity, brokerage: '' };
+          saveNameRecord(compName, compCity, compResult);
+          incrementDailyUsage();
+          updateSearchCounterBadge();
+        }
+
+        renderBattle(primaryAgentResult, compResult);
+
+      } catch(err) {
+        console.error('Compare error:', err);
+        btn.disabled = false;
+        btn.textContent = 'Compare →';
+        alert('Something went wrong. Please try again.');
+      }
+    }
+
+    function renderBattle(agentRes, compRes) {
+      const agentScore = Math.round(agentRes.analysis.overall_score);
+      const compScore = Math.round(compRes.analysis.overall_score);
+      const gap = Math.abs(agentScore - compScore);
+      const agentWins = agentScore >= compScore;
+
+      document.getElementById('battleAgentName').textContent = agentRes.name;
+      document.getElementById('battleAgentCity').textContent = agentRes.city;
+      document.getElementById('battleCompName').textContent = compRes.name;
+      document.getElementById('battleCompCity').textContent = compRes.city;
+
+      document.getElementById('bAgentName').textContent = agentRes.name.split(' ')[0];
+      document.getElementById('bCompName').textContent = compRes.name.split(' ')[0];
+      document.getElementById('bdGap').textContent = gap;
+
+      const agentScoreEl = document.getElementById('bAgentScore');
+      const compScoreEl = document.getElementById('bCompScore');
+      agentScoreEl.textContent = agentScore;
+      compScoreEl.textContent = compScore;
+      agentScoreEl.className = 'bas-num ' + (agentWins ? 'winner' : 'loser');
+      compScoreEl.className = 'bas-num ' + (!agentWins ? 'winner' : 'loser');
+
+      const platforms = [
+        { label: 'ChatGPT', aScore: agentRes.gptData.visibility_score, cScore: compRes.gptData.visibility_score },
+        { label: 'Perplexity', aScore: agentRes.perpData.visibility_score, cScore: compRes.perpData.visibility_score },
+        { label: 'Claude', aScore: agentRes.claudeData.visibility_score, cScore: compRes.claudeData.visibility_score },
+      ];
+
+      document.getElementById('battleBars').innerHTML = platforms.map(p => {
+        const aW = p.aScore;
+        const cW = p.cScore;
+        const aColor = p.aScore >= p.cScore ? 'var(--sage)' : 'var(--rust)';
+        const cColor = p.cScore >= p.aScore ? 'var(--sage)' : 'var(--rust)';
+        return `
+          <div class="bb-row">
+            <div class="bb-score-left" style="color:${aColor}">${p.aScore}</div>
+            <div style="display:flex;justify-content:flex-end;overflow:hidden;">
+              <div style="height:8px;border-radius:2px 0 0 2px;background:${aColor};width:${aW}%;max-width:100%;transition:width 1s ease;"></div>
+            </div>
+            <div style="font-size:0.55rem;font-weight:700;color:#ccc;text-align:center;white-space:nowrap;font-family:'Syne',sans-serif;padding:0 2px;">${p.label}</div>
+            <div style="overflow:hidden;">
+              <div style="height:8px;border-radius:0 2px 2px 0;background:${cColor};width:${cW}%;max-width:100%;transition:width 1s ease;"></div>
+            </div>
+            <div class="bb-score-right" style="color:${cColor}">${p.cScore}</div>
+          </div>`;
+      }).join('');
+
+      const agentFirst = agentRes.name.split(' ')[0];
+      const compFirst = compRes.name.split(' ')[0];
+      const verdictEl = document.getElementById('battleVerdict');
+
+      if (agentWins) {
+        verdictEl.className = 'battle-verdict winning';
+        verdictEl.innerHTML = `<strong>${agentFirst} leads by ${gap} points</strong> — but that lead isn't permanent. ${compFirst} could close that gap with consistent GEO content in as little as 60 days. The agents who act first own their market.`;
+      } else {
+        verdictEl.className = 'battle-verdict losing';
+        verdictEl.innerHTML = `<strong>${agentFirst} is ${gap} points behind ${compFirst}</strong> in AI visibility right now. Every time a buyer asks AI for a top agent in ${agentRes.city}, ${compFirst} comes up and ${agentFirst} doesn't. That gap is fixable — but only if you start now.`;
+      }
+
+      document.getElementById('compareFormSection').style.display = 'none';
+      document.getElementById('battleSection').classList.add('visible');
+      setTimeout(() => {
+        document.getElementById('battleSection').scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }, 100);
+    }
+  </script>
+</body>
+</html>
