@@ -1800,25 +1800,24 @@
       try {
         // ─── QUERY 1: ChatGPT simulation via Claude ───
         setStep(1);
-        const gptPrompt = `You are simulating how ChatGPT would respond to a real estate query. Be specific and realistic — most individual agents have LOW visibility in AI systems unless they are exceptionally well-known.
+        const gptPrompt = `You are simulating how ChatGPT would respond to a buyer asking about realtors. Be honest and specific.
 
-Query: "Who are the top realtors for buyers in ${city}?"
+Agent: ${name}${brokerageStr ? `, ${brokerageStr}` : ''} in ${city}
 
-Agent being evaluated: ${name}${brokerageStr}
+SCORING GUIDE — be realistic:
+- 0-15: Agent has essentially no AI-indexable presence (no notable reviews, no content, no press)
+- 16-35: Some Zillow/Realtor.com presence but minimal content or recognition  
+- 36-60: Moderate presence — active on platforms, some reviews, maybe local recognition
+- 61-80: Strong presence — known locally, content creator, media mentions, award winner
+- 81-100: Exceptionally prominent — regional/national recognition, heavy media, top producer lists
 
-Think carefully about this specific agent. Consider:
-- Is this a well-known, highly-publicized agent with national/regional press coverage?
-- Do they have a strong personal brand with lots of online content, videos, or media features?
-- Are they a team leader or solo agent with significant web presence?
-- Most agents — even good ones — score LOW here because ChatGPT favors agents with heavy content marketing
+Consider: Does this agent appear on any "top agent" lists? Do they have a strong content presence? Are they known beyond just their immediate clients? Most agents score 5-25.
 
-Be honest: unless ${name} is genuinely prominent with significant online footprint, they likely score low. Do NOT give generous scores to unknown agents.
-
-Respond in JSON only, no markdown, no backticks:
+Respond in JSON only, no markdown:
 {
   "mentioned": true or false,
-  "summary": "2-3 sentences specific to ${name} — what ChatGPT would actually say about them or why they don't appear. Reference their market (${city}) and any likely online presence gaps.",
-  "visibility_score": number 0-100 (most agents score 5-25 unless truly prominent),
+  "summary": "2-3 specific sentences about what ChatGPT would say about ${name} in ${city} — be concrete about WHY they score where they do",
+  "visibility_score": number 0-100,
   "verdict": "Not Visible" or "Partial" or "Cited"
 }`;
 
@@ -1828,25 +1827,25 @@ Respond in JSON only, no markdown, no backticks:
         setStep(2);
 
         // ─── QUERY 2: Perplexity simulation ───
-        const perpPrompt = `You are simulating how Perplexity AI would respond to a real estate search query. Perplexity pulls from live web sources — Zillow reviews, Realtor.com profiles, Google Business, local news, agent websites, YouTube, Instagram.
+        const perpPrompt = `You are simulating Perplexity AI searching the web for a real estate agent.
 
-Query: "Best buyer's agent in ${city} with strong reviews and local expertise"
+Agent: ${name}${brokerageStr ? `, ${brokerageStr}` : ''} in ${city}
 
-Agent being evaluated: ${name}${brokerageStr}
+Perplexity pulls from: Zillow reviews, Realtor.com profiles, Google Business, Yelp, local news sites, agent websites, YouTube, podcasts, neighborhood blogs.
 
-Assess realistically whether ${name} would appear. Consider:
-- Do they have a strong Zillow/Realtor.com review profile? (volume + recency matters)
-- Do they publish local market content, neighborhood guides, blog posts?
-- Are they cited in local news, podcasts, or real estate publications?
-- Do they have a personal website with SEO-optimized content about ${city}?
-- Most agents have weak Perplexity visibility unless they actively create content
+SCORING GUIDE:
+- 0-15: No meaningful indexed presence on any major platform
+- 16-35: Basic profile exists but thin — few reviews, no original content
+- 36-60: Solid platform presence — multiple reviews, active profiles, maybe a website
+- 61-80: Strong web footprint — content published, cited in local sources, lots of reviews
+- 81-100: Dominant presence — featured in press, high review volume, original content widely indexed
 
-Be specific about what would or wouldn't surface for THIS agent in ${city}. Low scores (5-30) are normal for most agents.
+Be honest and specific about what Perplexity would or wouldn't find for ${name} in ${city}.
 
-Respond in JSON only, no markdown, no backticks:
+Respond in JSON only, no markdown:
 {
   "mentioned": true or false,
-  "summary": "2-3 sentences about what Perplexity would find for ${name} specifically — cite likely sources like Zillow, local blogs, or explain what's missing",
+  "summary": "2-3 specific sentences about what Perplexity would surface for ${name} — name specific sources like Zillow or local news, or explain exactly what's missing",
   "visibility_score": number 0-100,
   "verdict": "Not Visible" or "Partial" or "Cited"
 }`;
@@ -1857,22 +1856,30 @@ Respond in JSON only, no markdown, no backticks:
         setStep(3);
 
         // ─── QUERY 3: Claude's own knowledge ───
-        const claudePrompt = `I want you to honestly assess your own knowledge of a real estate agent. Be direct and specific — do NOT fabricate details.
+        const claudePrompt = `Honest self-assessment: Do you have any actual knowledge of this real estate agent from your training data?
 
-Agent: ${name}${brokerageStr ? `, ${brokerageStr}` : ''}, working in ${city}
+Agent: ${name}${brokerageStr ? `, ${brokerageStr}` : ''} in ${city}
 
-Do you actually have knowledge of this specific person from your training data? Think about:
-- Have you seen their name in real estate articles, award lists, or local press about ${city}?
-- Do they appear in any notable context — luxury market, relocation specialist, team leader, etc.?
-- Are they associated with notable transactions or market commentary?
+Search your training data carefully. Have you seen this person mentioned in:
+- Real estate industry publications or award lists
+- Local news articles or market reports  
+- Notable transaction coverage
+- Social media with wide reach
+- Any other publicly indexed content
 
-Most individual real estate agents do NOT appear in Claude's training data unless they are exceptional. Be honest — if you don't know them, say so specifically.
+SCORING:
+- 0-10: No knowledge whatsoever — completely absent from training data
+- 11-30: Vague familiarity at best — possibly seen name but no substantive data
+- 31-60: Some knowledge — appears in some indexed content
+- 61-100: Clear knowledge — well-documented in training data with specifics
 
-Respond in JSON only, no markdown, no backticks:
+Be completely honest. If you know them, say specifically what you know. If you don't, say exactly why they don't appear.
+
+Respond in JSON only, no markdown:
 {
   "mentioned": true or false,
-  "summary": "2-3 honest sentences — either what you actually know about ${name} in ${city}, or specifically why they don't appear (no notable press, no published content indexed, etc.)",
-  "visibility_score": number 0-100 (be conservative — unknown agents score 0-15),
+  "summary": "2-3 honest sentences — either specific things you know about ${name} in ${city}, or a specific explanation of why they don't appear in your training data",
+  "visibility_score": number 0-100,
   "verdict": "Not Visible" or "Partial" or "Cited"
 }`;
 
@@ -1883,46 +1890,47 @@ Respond in JSON only, no markdown, no backticks:
 
         // ─── QUERY 4: Full analysis + gaps ───
         const firstName = name.split(' ')[0];
-        const analysisPrompt = `You are a GEO (Generative Engine Optimization) analyst at Broker Base, a digital marketing agency for real estate professionals.
+        const analysisPrompt = `You are a GEO analyst at Broker Base writing a specific, actionable report.
 
 Agent: ${name}${brokerageStr ? `, ${brokerageStr}` : ''} — ${city}
 
-Platform scan results:
+Scan results:
 - ChatGPT: ${gptData.visibility_score}/100 — ${gptData.summary}
 - Perplexity: ${perpData.visibility_score}/100 — ${perpData.summary}
 - Claude: ${claudeData.visibility_score}/100 — ${claudeData.summary}
 
-Write a specific, honest GEO analysis. The gaps and recommendations must be SPECIFIC to ${name}'s situation in ${city} — not generic advice. Reference the actual findings above.
+Write a report that is SPECIFIC to this agent's actual situation. Do not give generic real estate advice — every sentence should reference ${name}, ${city}, or the specific findings above.
 
-Respond in JSON only, no markdown, no backticks:
+Respond in JSON only, no markdown:
 {
-  "overall_score": weighted average (ChatGPT 40%, Perplexity 35%, Claude 25%),
-  "headline": "punchy 6-10 word headline specific to their situation (e.g. 'Strong locally, invisible to AI buyers.' or 'AI has no idea ${firstName} exists yet.')",
-  "summary": "2 sentences specific to ${name} in ${city} — what the scan revealed about their actual AI visibility situation",
+  "overall_score": weighted average (ChatGPT 40%, Perplexity 35%, Claude 25%) rounded to nearest whole number,
+  "headline": "6-10 word headline that captures THEIR specific situation — use their name or city",
+  "summary": "2 sentences that specifically describe what this scan found about ${name} in ${city}",
   "gaps": [
     {
       "type": "critical",
-      "title": "specific gap title",
-      "description": "2 sentences specific to ${name} and ${city} — what's missing and why it matters for their market"
+      "title": "specific gap title referencing their actual situation",
+      "description": "2 sentences specific to ${name} in ${city} — what the scan found and what it means"
     },
     {
-      "type": "critical", 
-      "title": "specific gap title",
-      "description": "2 sentences specific to their situation"
+      "type": "critical",
+      "title": "second specific gap",
+      "description": "2 sentences referencing the actual scan findings"
     },
     {
       "type": "win",
-      "title": "quick win title",
-      "description": "2 sentences — specific actionable opportunity for ${name} in ${city}"
+      "title": "most impactful quick win for ${city} market",
+      "description": "2 sentences — the single fastest action ${firstName} can take given their current scores"
     },
     {
       "type": "strength",
-      "title": "strength or opportunity title",
-      "description": "2 sentences — what's working or a specific opportunity in their market"
+      "title": "opportunity specific to ${city}",
+      "description": "2 sentences about a market-specific opportunity in ${city} that ${firstName} could own"
     }
   ],
-  "cta_headline": "personalized 6-8 word CTA using ${firstName}'s name"
+  "cta_headline": "6-8 words using ${firstName}'s name that speaks to their specific score"
 }`;
+
 
 
         const analysisRaw = await callClaude(analysisPrompt);
