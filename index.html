@@ -614,7 +614,7 @@
     }
 
     .cta-eyebrow { font-size: 0.68rem; font-weight: 600; letter-spacing: 0.15em; text-transform: uppercase; color: var(--gold); margin-bottom: 0.7rem; }
-    .cta-headline { font-family: 'Syne', sans-serif; font-weight: 800; font-size: 1.9rem; line-height: 1.1; margin-bottom: 0.9rem; }
+    .cta-headline { font-family: 'Syne', sans-serif; font-weight: 800; font-size: clamp(1.4rem, 4vw, 2.6rem); line-height: 1.1; margin-bottom: 0.9rem; word-break: break-word; }
     .cta-body { font-size: 0.875rem; font-weight: 300; color: rgba(255,255,255,0.6); line-height: 1.7; max-width: 460px; margin: 0 auto 1.8rem; }
 
     .cta-btns { display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap; }
@@ -1444,7 +1444,7 @@
       </button>
       <div class="faq-answer">
         <div class="faq-answer-inner">
-          <a href="https://www.thebrokerbase.com">Broker Base</a> is a digital marketing agency that works exclusively with real estate professionals and eCommerce brands. We built this tool because GEO is the most underutilized opportunity in real estate marketing right now — and the best way to show agents why it matters is to show them their actual score. The scan is free. If your score tells a story you want to change, we're here to help. Reach us at <a href="/cdn-cgi/l/email-protection#6b0804051f0a081f4d485d5f501f030e091904000e19090a180e45080406">contact&#64;thebrokerbase&#46;com</a> or call <a href="tel:3233711357">323.371.1357</a>.
+          <a href="https://www.thebrokerbase.com">Broker Base</a> is a digital marketing agency that works exclusively with real estate professionals and eCommerce brands. We built this tool because GEO is the most underutilized opportunity in real estate marketing right now — and the best way to show agents why it matters is to show them their actual score. The scan is free. If your score tells a story you want to change, we're here to help. Reach us at <a href="mailto:contact@thebrokerbase.com">contact@thebrokerbase.com</a> or call <a href="tel:3233711357">323.371.1357</a>.
         </div>
       </div>
     </div>
@@ -1790,163 +1790,159 @@
     async function proceedWithScan({ name, city, brokerage }) {
       agentData = { name, city, brokerage };
 
-      // Setup scan screen
       document.getElementById('scanAgentName').textContent = name + ' · ' + city;
       showScreen('scanScreen');
       setStep(1);
 
       const brokerageStr = brokerage ? ` at ${brokerage}` : '';
+      const firstName = name.split(' ')[0];
 
       try {
-        // ─── QUERY 1: ChatGPT simulation via Claude ───
+        // ─── STEP 0: Real web research ───
+        let research = { found: false, overall_web_presence: 'unknown', key_finding: '', platforms: {} };
+        try {
+          const researchResp = await fetch(`${PROXY_URL}/api/research`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ name, city, brokerage })
+          });
+          if (researchResp.ok) research = await researchResp.json();
+        } catch(e) { console.warn('Research failed, continuing:', e); }
+
+        const rp = research.platforms || {};
+        const researchSummary = `Web research results:
+- Overall presence: ${research.overall_web_presence || 'unknown'}
+- Zillow: ${rp.zillow?.present ? `YES — ${rp.zillow.review_count || 0} reviews. ${rp.zillow.notes || ''}` : 'Not found'}
+- Realtor.com: ${rp.realtor_com?.present ? `YES — ${rp.realtor_com.notes || ''}` : 'Not found'}
+- Own website: ${rp.own_website?.present ? `YES — ${rp.own_website.url || ''}` : 'Not found'}
+- Social media: ${rp.social_media?.present ? `YES — ${rp.social_media.notes || ''}` : 'Minimal'}
+- Press/awards: ${research.press_mentions || 'None found'}
+- Specialty: ${research.specialty || 'General'}
+- Key finding: ${research.key_finding || 'Limited presence found'}`;
+
+        // ─── QUERY 1: ChatGPT simulation ───
         setStep(1);
-        const gptPrompt = `You are simulating how ChatGPT would respond to a buyer asking about realtors. Be honest and specific.
+        const gptPrompt = `You are assessing how ChatGPT would respond to a real estate query based on actual web research data.
 
-Agent: ${name}${brokerageStr ? `, ${brokerageStr}` : ''} in ${city}
+Agent: ${name}${brokerageStr} in ${city}
 
-SCORING GUIDE — be realistic:
-- 0-15: Agent has essentially no AI-indexable presence (no notable reviews, no content, no press)
-- 16-35: Some Zillow/Realtor.com presence but minimal content or recognition  
-- 36-60: Moderate presence — active on platforms, some reviews, maybe local recognition
-- 61-80: Strong presence — known locally, content creator, media mentions, award winner
-- 81-100: Exceptionally prominent — regional/national recognition, heavy media, top producer lists
+${researchSummary}
 
-Consider: Does this agent appear on any "top agent" lists? Do they have a strong content presence? Are they known beyond just their immediate clients? Most agents score 5-25.
+Based on this REAL data about their web presence, how would ChatGPT likely respond if asked about top agents in ${city}? 
+- Strong Zillow presence (50+ reviews) = ChatGPT more likely to surface them
+- Press coverage or awards = significantly boosts score
+- No web presence = score 0-15
 
-Respond in JSON only, no markdown:
+Respond in JSON only:
 {
   "mentioned": true or false,
-  "summary": "2-3 specific sentences about what ChatGPT would say about ${name} in ${city} — be concrete about WHY they score where they do",
-  "visibility_score": number 0-100,
+  "summary": "2-3 specific sentences referencing the actual data found — mention specific platforms, review counts, or gaps by name",
+  "visibility_score": number 0-100 based on actual findings,
   "verdict": "Not Visible" or "Partial" or "Cited"
 }`;
 
         const gptRaw = await callClaude(gptPrompt);
-        const gptData = JSON.parse(gptRaw.replace(/```json|```/g, '').trim());
+        const gptData = JSON.parse(gptRaw.replace(/\`\`\`json|\`\`\`/g, '').trim());
 
         setStep(2);
 
         // ─── QUERY 2: Perplexity simulation ───
-        const perpPrompt = `You are simulating Perplexity AI searching the web for a real estate agent.
+        const perpPrompt = `You are assessing how Perplexity AI would surface this agent based on actual web research.
 
-Agent: ${name}${brokerageStr ? `, ${brokerageStr}` : ''} in ${city}
+Agent: ${name}${brokerageStr} in ${city}
 
-Perplexity pulls from: Zillow reviews, Realtor.com profiles, Google Business, Yelp, local news sites, agent websites, YouTube, podcasts, neighborhood blogs.
+${researchSummary}
 
-SCORING GUIDE:
-- 0-15: No meaningful indexed presence on any major platform
-- 16-35: Basic profile exists but thin — few reviews, no original content
-- 36-60: Solid platform presence — multiple reviews, active profiles, maybe a website
-- 61-80: Strong web footprint — content published, cited in local sources, lots of reviews
-- 81-100: Dominant presence — featured in press, high review volume, original content widely indexed
+Perplexity indexes live web content. Based on the real data above, would Perplexity surface ${name} for a buyer searching in ${city}?
+- Perplexity heavily weights: Zillow reviews, personal website with local content, Google Business reviews, local news mentions
+- Reference the actual platforms found or missing
 
-Be honest and specific about what Perplexity would or wouldn't find for ${name} in ${city}.
-
-Respond in JSON only, no markdown:
+Respond in JSON only:
 {
   "mentioned": true or false,
-  "summary": "2-3 specific sentences about what Perplexity would surface for ${name} — name specific sources like Zillow or local news, or explain exactly what's missing",
-  "visibility_score": number 0-100,
+  "summary": "2-3 sentences referencing specific platforms found or missing — e.g. 'Perplexity would find ${name} on Zillow with X reviews but would not find a personal website or local press coverage'",
+  "visibility_score": number 0-100 based on actual findings,
   "verdict": "Not Visible" or "Partial" or "Cited"
 }`;
 
         const perpRaw = await callClaude(perpPrompt);
-        const perpData = JSON.parse(perpRaw.replace(/```json|```/g, '').trim());
+        const perpData = JSON.parse(perpRaw.replace(/\`\`\`json|\`\`\`/g, '').trim());
 
         setStep(3);
 
-        // ─── QUERY 3: Claude's own knowledge ───
-        const claudePrompt = `Honest self-assessment: Do you have any actual knowledge of this real estate agent from your training data?
+        // ─── QUERY 3: Claude's knowledge ───
+        const claudePrompt = `Honest assessment: What do you actually know about this agent from your training data?
 
-Agent: ${name}${brokerageStr ? `, ${brokerageStr}` : ''} in ${city}
+Agent: ${name}${brokerageStr} in ${city}
 
-Search your training data carefully. Have you seen this person mentioned in:
-- Real estate industry publications or award lists
-- Local news articles or market reports  
-- Notable transaction coverage
-- Social media with wide reach
-- Any other publicly indexed content
+${researchSummary}
 
-SCORING:
-- 0-10: No knowledge whatsoever — completely absent from training data
-- 11-30: Vague familiarity at best — possibly seen name but no substantive data
-- 31-60: Some knowledge — appears in some indexed content
-- 61-100: Clear knowledge — well-documented in training data with specifics
+Cross-reference with your own training data. The web research above shows their current presence. Do you have independent knowledge of this agent from published content, news, or indexed sources?
 
-Be completely honest. If you know them, say specifically what you know. If you don't, say exactly why they don't appear.
-
-Respond in JSON only, no markdown:
+Respond in JSON only:
 {
   "mentioned": true or false,
-  "summary": "2-3 honest sentences — either specific things you know about ${name} in ${city}, or a specific explanation of why they don't appear in your training data",
+  "summary": "2-3 honest sentences — what you specifically know or don't know, and what that means for AI visibility",
   "visibility_score": number 0-100,
   "verdict": "Not Visible" or "Partial" or "Cited"
 }`;
 
         const claudeRaw = await callClaude(claudePrompt);
-        const claudeData = JSON.parse(claudeRaw.replace(/```json|```/g, '').trim());
+        const claudeData = JSON.parse(claudeRaw.replace(/\`\`\`json|\`\`\`/g, '').trim());
 
         setStep(4);
 
-        // ─── QUERY 4: Full analysis + gaps ───
-        const firstName = name.split(' ')[0];
-        const analysisPrompt = `You are a GEO analyst at Broker Base writing a specific, actionable report.
+        // ─── QUERY 4: Analysis ───
+        const analysisPrompt = `Write a specific GEO analysis for this agent based on real research data.
 
-Agent: ${name}${brokerageStr ? `, ${brokerageStr}` : ''} — ${city}
+Agent: ${name}${brokerageStr} — ${city}
 
-Scan results:
+${researchSummary}
+
+Platform scores:
 - ChatGPT: ${gptData.visibility_score}/100 — ${gptData.summary}
 - Perplexity: ${perpData.visibility_score}/100 — ${perpData.summary}
 - Claude: ${claudeData.visibility_score}/100 — ${claudeData.summary}
 
-Write a report that is SPECIFIC to this agent's actual situation. Do not give generic real estate advice — every sentence should reference ${name}, ${city}, or the specific findings above.
+Write a report grounded in the REAL findings above. Reference actual platforms, review counts, and specific gaps found.
 
-Respond in JSON only, no markdown:
+Respond in JSON only:
 {
-  "overall_score": weighted average (ChatGPT 40%, Perplexity 35%, Claude 25%) rounded to nearest whole number,
-  "headline": "6-10 word headline that captures THEIR specific situation — use their name or city",
-  "summary": "2 sentences that specifically describe what this scan found about ${name} in ${city}",
+  "overall_score": weighted average (ChatGPT 40%, Perplexity 35%, Claude 25%) as whole number,
+  "headline": "6-10 words specific to their actual situation — reference real findings",
+  "summary": "2 sentences based on what the research actually found about ${name} in ${city}",
   "gaps": [
-    {
-      "type": "critical",
-      "title": "specific gap title referencing their actual situation",
-      "description": "2 sentences specific to ${name} in ${city} — what the scan found and what it means"
-    },
-    {
-      "type": "critical",
-      "title": "second specific gap",
-      "description": "2 sentences referencing the actual scan findings"
-    },
-    {
-      "type": "win",
-      "title": "most impactful quick win for ${city} market",
-      "description": "2 sentences — the single fastest action ${firstName} can take given their current scores"
-    },
-    {
-      "type": "strength",
-      "title": "opportunity specific to ${city}",
-      "description": "2 sentences about a market-specific opportunity in ${city} that ${firstName} could own"
-    }
+    { "type": "critical", "title": "gap based on actual missing platform or presence", "description": "2 sentences referencing specific findings from the research" },
+    { "type": "critical", "title": "second real gap found", "description": "2 sentences based on actual data" },
+    { "type": "win", "title": "fastest win based on what IS there", "description": "2 sentences — specific action based on current presence" },
+    { "type": "strength", "title": "specific opportunity in ${city} market", "description": "2 sentences about a concrete opportunity for ${firstName} in their specific market" }
   ],
-  "cta_headline": "6-8 words using ${firstName}'s name that speaks to their specific score"
+  "cta_headline": "6-8 words using ${firstName}'s name"
 }`;
 
-
-
         const analysisRaw = await callClaude(analysisPrompt);
-        const analysis = JSON.parse(analysisRaw.replace(/```json|```/g, '').trim());
+        const analysis = JSON.parse(analysisRaw.replace(/\`\`\`json|\`\`\`/g, '').trim());
 
         completeSteps();
 
-        // ─── SAVE TO CACHE + INCREMENT COUNTER ───
         const resultData = { gptData, perpData, claudeData, analysis, name, city, brokerage };
         saveNameRecord(name, city, resultData);
         incrementDailyUsage();
 
-        // Small pause for effect
         await new Promise(r => setTimeout(r, 600));
 
-        // ─── POPULATE RESULTS ───
+        populateResults({ gptData, perpData, claudeData, analysis, name, city, brokerage });
+        showScreen('resultsScreen');
+        window.scrollTo(0, 0);
+
+      } catch (err) {
+        console.error('Scan error:', err);
+        alert('Something went wrong during the scan. Please try again.');
+        showScreen('searchScreen');
+      }
+    }
+
+    // ─── POPULATE RESULTS ───
         populateResults({ gptData, perpData, claudeData, analysis, name, city, brokerage });
         showScreen('resultsScreen');
         window.scrollTo(0, 0);
